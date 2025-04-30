@@ -1,0 +1,33 @@
+{
+  "email": "Email",
+  "password": "Password",
+  "login": "Login",
+  "forgot_password": "Forgot password?",
+  "no_account": "Not registered yet?",
+  "create_account": "Create an account",
+
+    "reset_password": "Reset Password",
+    "enter_email": "Enter your email",
+    "send_link": "Send Link",
+    "back": "Back",
+    "invalid_email_title": "Invalid Email",
+    "invalid_email_message": "Please enter a valid email.",
+    "email_sent_title": "Email Sent",
+    "email_sent_message": "A reset link has been sent to your address.",
+    "title1": "Fill the form",
+    "name": "Name",
+    "confirmPassword": "Confirm Password",
+    "next": "Next",
+    "cancel": "Cancel",
+    
+      "title": "Complete your profile",
+      "university": "University",
+      "speciality": "Speciality",
+      "level": "Level",
+      "department": "Department",
+      "submit": "Submit",
+      "back2": "Back to previous step"
+    
+    
+  
+}
