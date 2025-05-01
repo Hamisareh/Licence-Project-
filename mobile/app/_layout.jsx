@@ -1,12 +1,13 @@
-import { Slot } from 'expo-router';
-import { SafeAreaView } from 'react-native';
+
 import '../i18n'; 
 
+import { RegisterProvider } from '../context/RegisterContext';
+import { Slot } from 'expo-router';
 
 export default function Layout() {
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <RegisterProvider>
       <Slot />
-    </SafeAreaView>
+    </RegisterProvider>
   );
 }
