@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'reac
 import { router } from 'expo-router';
 import { login } from '../api/auth';
 import { saveToken } from '../utils/storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -11,10 +12,17 @@ export default function LoginScreen() {
   const handleLogin = async () => {
     try {
       const { data } = await login(email, password);
-      await saveToken(data.token);
+  
+      // Sauvegarder token + rôle dans AsyncStorage
+      await AsyncStorage.setItem('token', data.token);
+      await AsyncStorage.setItem('role', data.role);
+  
+      // Redirection vers la page d'accueil (tab/home)
       router.replace('/tabs/home');
     } catch (err) {
-      Alert.alert('Erreur', err.response?.data?.error || 'Connexion échouée');
+      console.error("Erreur de connexion :", err);
+      const errorMessage = err.response?.data?.error || err.message || 'Connexion échouée';
+      Alert.alert('Erreur', errorMessage);
     }
   };
 

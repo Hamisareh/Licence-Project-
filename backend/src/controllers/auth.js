@@ -129,4 +129,41 @@ exports.login = async (req, res) => {
     res.status(500).json({ error: 'Erreur serveur' });
   }
 };
+exports.login = async (req, res) => {
+  const { email, mdps } = req.body;
 
+  try {
+    const [rows] = await db.query('SELECT * FROM Utilisateur WHERE email = ?', [email]);
+    if (rows.length === 0) return res.status(401).json({ error: 'Email incorrect' });
+
+    const user = rows[0];
+    if (!user.email_verifie) return res.status(403).json({ error: 'Compte non vérifié' });
+
+    const match = await bcrypt.compare(mdps, user.mdps);
+    if (!match) return res.status(401).json({ error: 'Mot de passe incorrect' });
+
+    const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, process.env.JWT_SECRET, {
+      expiresIn: '2h'
+    });
+
+    res.json({ token, role: user.role });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+};
+
+exports.getCurrentUser = async (req, res) => {
+  try {
+    const user = await getUserById(req.user.id);
+    res.json({ user });
+  } catch (err) {
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+};
+
+// Dashboards
+exports.etudiantDashboard = (req, res) => res.json({ message: 'Bienvenue étudiant', id: req.user.id });
+exports.entrepriseDashboard = (req, res) => res.json({ message: 'Bienvenue entreprise', id: req.user.id });
+exports.chefDashboard = (req, res) => res.json({ message: 'Bienvenue chef de département', id: req.user.id });
+exports.adminDashboard = (req, res) => res.json({ message: 'Bienvenue administrateur', id: req.user.id });

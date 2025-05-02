@@ -3,6 +3,9 @@ console.log("Début du serveur...");
 const express = require('express');
 const cors = require('cors');
 const app = express();
+const routes = require('./src/routes/auth');
+
+
 console.log("Express chargé...");
 
 // Si tu utilises dotenv pour charger les variables d'environnement
@@ -13,17 +16,13 @@ const PORT = process.env.PORT || 5000; // Si PORT n'est pas dans .env, il prendr
 
 app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(cors());
+app.use(express.json());
+app.use('/api/auth', routes); // toutes les routes commenceront par /api
 
-const authRoutes = require('./src/routes/auth');
-app.use('/auth', authRoutes);
-
-app.get('/', (req, res) => {
-  res.send('API fonctionne ✅');
-});
 
 app.listen(PORT, () => {
-  console.log(`✅ Serveur démarré sur le port ${PORT}`);
+  console.log(`Serveur démarré sur le port ${PORT}`);
 });
 
 module.exports = app;
