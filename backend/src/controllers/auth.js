@@ -129,35 +129,23 @@ exports.login = async (req, res) => {
     res.status(500).json({ error: 'Erreur serveur' });
   }
 };
-exports.login = async (req, res) => {
-  const { email, mdps } = req.body;
-
-  try {
-    const [rows] = await db.query('SELECT * FROM Utilisateur WHERE email = ?', [email]);
-    if (rows.length === 0) return res.status(401).json({ error: 'Email incorrect' });
-
-    const user = rows[0];
-    if (!user.email_verifie) return res.status(403).json({ error: 'Compte non vérifié' });
-
-    const match = await bcrypt.compare(mdps, user.mdps);
-    if (!match) return res.status(401).json({ error: 'Mot de passe incorrect' });
-
-    const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, process.env.JWT_SECRET, {
-      expiresIn: '2h'
-    });
-
-    res.json({ token, role: user.role });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Erreur serveur' });
-  }
-};
-
 exports.getCurrentUser = async (req, res) => {
   try {
-    const user = await getUserById(req.user.id);
+    const [userRows] = await db.query('SELECT id, nom, prenom, email, role FROM Utilisateur WHERE id = ?', [req.user.id]);
+    if (userRows.length === 0) return res.status(404).json({ error: 'Utilisateur non trouvé' });
+
+    const user = userRows[0];
+
+    if (user.role === 'etudiant') {
+      const [etudiantRows] = await db.query('SELECT universite, specialite, niveau, departement FROM Etudiant WHERE id_etud = ?', [user.id]);
+      if (etudiantRows.length > 0) {
+        Object.assign(user, etudiantRows[0]); // Ajoute les champs à user
+      }
+    }
+
     res.json({ user });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 };
