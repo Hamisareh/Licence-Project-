@@ -16,7 +16,7 @@ export const saveToken = async (token) => {
 
 export const getProfile = async () => {
   const token = await AsyncStorage.getItem('token');
-  return axios.get(`${angrok_URL}/me`, {
+  return axios.get(`${API_URL}/me`, {
     headers: { Authorization: `Bearer ${token}` },
   });
 };

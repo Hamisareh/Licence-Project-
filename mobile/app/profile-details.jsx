@@ -11,26 +11,24 @@ export default function ProfileDetails() {
     specialite: '',
     niveau: '',
     departement: '',
-    mdps: '',
   });
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const token = await AsyncStorage.getItem('token');
-        const res = await fetch('http://192.168.1.4:5000/api/auth/me', {
+        const res = await fetch('http://192.168.251.20:5000/api/auth/me', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-  
-        // Vérifie la réponse brute
-        const responseText = await res.text();  // Récupère la réponse sous forme de texte brut
-        console.log('Réponse brute du serveur:', responseText);  // Affiche la réponse brute pour comprendre ce que le serveur renvoie
-  
+
+        const responseText = await res.text();
+        console.log('Réponse brute du serveur:', responseText);
+
         try {
-          const data = JSON.parse(responseText);  // Tente de parser la réponse en JSON
-          console.log('Données utilisateur :', data);  // Affiche les données utilisateur
+          const data = JSON.parse(responseText);
+          console.log('Données utilisateur :', data);
           if (res.ok) {
             const u = data.user;
             setForm({
@@ -41,7 +39,6 @@ export default function ProfileDetails() {
               specialite: u.specialite || '',
               niveau: u.niveau || '',
               departement: u.departement || '',
-              mdps: '',
             });
           } else {
             Alert.alert('Erreur', data.error || 'Échec de chargement');
@@ -50,16 +47,16 @@ export default function ProfileDetails() {
           console.error('Erreur de parsing JSON :', error);
           Alert.alert('Erreur', 'La réponse du serveur n\'est pas au format JSON');
         }
-  
+
       } catch (err) {
         console.error(err);
         Alert.alert('Erreur', 'Impossible de récupérer les données utilisateur');
       }
     };
-  
+
     fetchUser();
   }, []);
-  
+
   const handleChange = (key, value) => {
     setForm({ ...form, [key]: value });
   };
@@ -72,13 +69,13 @@ export default function ProfileDetails() {
         return;
       }
 
-      const res = await fetch('http://192.168.1.4:5000/api/auth/me', {  // Remplace '192.168.x.x' par l'IP locale
+      const res = await fetch('http://192.168.251.20:5000/api/auth/me', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(form),
+        body: JSON.stringify(form), // mdps n’est plus inclus ici
       });
 
       const data = await res.json();
@@ -106,14 +103,6 @@ export default function ProfileDetails() {
           onChangeText={(text) => handleChange(key, text)}
         />
       ))}
-
-      <TextInput
-        style={styles.input}
-        placeholder="Mot de passe (laisser vide si inchangé)"
-        value={form.mdps}
-        secureTextEntry
-        onChangeText={(text) => handleChange('mdps', text)}
-      />
 
       <Button title="Mettre à jour" onPress={handleSubmit} />
     </ScrollView>

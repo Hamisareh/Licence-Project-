@@ -159,7 +159,6 @@ exports.updateCurrentUser = async (req, res) => {
     nom,
     prenom,
     email,
-    mdps,
     universite,
     specialite,
     niveau,
@@ -170,44 +169,40 @@ exports.updateCurrentUser = async (req, res) => {
   } = req.body;
 
   try {
-    // Mise à jour des données communes dans la table Utilisateur
+    // 1. Mise à jour des données communes dans la table Utilisateur
+    console.log('Mise à jour des informations communes de l\'utilisateur...');
     await db.query(
       'UPDATE Utilisateur SET nom = ?, prenom = ?, email = ? WHERE id = ?',
       [nom, prenom, email, req.user.id]
     );
+    console.log('Informations de l\'utilisateur mises à jour.');
 
-    // Mise à jour du mot de passe si fourni
-    if (mdps && mdps.length < 8) {
-      return res.status(400).json({ error: 'Le mot de passe doit contenir au moins 8 caractères' });
-    }
-    
-    if (mdps && mdps.length >= 8) {
-      const hashed = await bcrypt.hash(mdps, 10);
-      await db.query('UPDATE Utilisateur SET mdps = ? WHERE id = ?', [hashed, req.user.id]);
-    }
-    
-
-    // Mise à jour selon le rôle
+    // 3. Mise à jour selon le rôle
+    console.log('Mise à jour des informations spécifiques au rôle...');
     if (req.user.role === 'etudiant') {
       await db.query(
         'UPDATE Etudiant SET universite = ?, specialite = ?, niveau = ?, departement = ? WHERE id_etud = ?',
         [universite, specialite, niveau, departement, req.user.id]
       );
+      console.log('Informations étudiant mises à jour.');
     } else if (req.user.role === 'entreprise') {
       await db.query(
         'UPDATE Entreprise SET adr = ?, tel = ?, secteur = ? WHERE id_entr = ?',
         [adr, tel, secteur, req.user.id]
       );
+      console.log('Informations entreprise mises à jour.');
     } else if (req.user.role === 'chef_dept') {
       await db.query(
-        'UPDATE Chef_dept SET universite = ?, departement = ? WHERE id_chef = ?',
+        'UPDATE ChefDepartement SET universite = ?, departement = ? WHERE id_chef = ?',
         [universite, departement, req.user.id]
       );
+      console.log('Informations chef de département mises à jour.');
     }
 
+    // 4. Retourner la réponse après la mise à jour
     res.json({ message: 'Profil mis à jour avec succès' });
   } catch (err) {
-    console.error(err);
+    console.error('Erreur lors de la mise à jour du profil:', err);
     res.status(500).json({ error: 'Erreur lors de la mise à jour' });
   }
 };
