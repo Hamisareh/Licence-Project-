@@ -2,6 +2,8 @@ const db = require('../config/db');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+const User = require('../models/user');
+
 const { sendVerificationEmail } = require('../utils/mailer');
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

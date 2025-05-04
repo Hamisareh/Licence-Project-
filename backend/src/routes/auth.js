@@ -10,22 +10,8 @@ router.get('/confirm/:token', controller.confirmEmail);
 router.post('/login', controller.login);
 
 // ✅ Route accessible par tous les utilisateurs connectés
-router.get('/me', verifyToken, async (req, res) => {
-  try {
-    const user = await User.findByPk(req.user.id, {
-      attributes: ['id', 'nom', 'prenom', 'email', 'role'],
-    });
+router.get('/me', verifyToken, controller.getCurrentUser);
 
-    if (!user) {
-      return res.status(404).json({ error: 'Utilisateur non trouvé' });
-    }
-
-    res.json({ user });
-  } catch (error) {
-    console.error('Erreur serveur /me:', error);
-    res.status(500).json({ error: 'Erreur serveur' });
-  }
-});
 router.put('/me', verifyToken, controller.updateCurrentUser);
 
 // ✅ Routes protégées par rôle
