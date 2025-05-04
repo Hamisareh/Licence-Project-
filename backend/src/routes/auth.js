@@ -10,14 +10,9 @@ router.get('/confirm/:token', controller.confirmEmail);
 router.post('/login', controller.login);
 
 // ✅ Route accessible par tous les utilisateurs connectés
-router.get('/me', verifyToken, async (req, res) => {
-  try {
-    const user = await getUserById(req.user.id);
-    res.json({ user });
-  } catch (err) {
-    res.status(500).json({ error: 'Erreur lors de la récupération de l’utilisateur' });
-  }
-});
+
+router.get('/me', verifyToken, controller.getCurrentUser);
+router.put('/me', verifyToken, controller.updateCurrentUser);
 
 // ✅ Routes protégées par rôle
 router.get('/etudiant/mon-espace', verifyToken, requireRole('etudiant'), (req, res) => {

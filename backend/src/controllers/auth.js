@@ -137,11 +137,16 @@ exports.getCurrentUser = async (req, res) => {
     const user = userRows[0];
 
     if (user.role === 'etudiant') {
-      const [etudiantRows] = await db.query('SELECT universite, specialite, niveau, departement FROM Etudiant WHERE id_etud = ?', [user.id]);
-      if (etudiantRows.length > 0) {
-        Object.assign(user, etudiantRows[0]); // Ajoute les champs à user
-      }
+      const [rows] = await db.query('SELECT universite, specialite, niveau, departement FROM Etudiant WHERE id_etud = ?', [user.id]);
+      Object.assign(user, rows[0]);
+    } else if (user.role === 'entreprise') {
+      const [rows] = await db.query('SELECT adr, tel, secteur FROM Entreprise WHERE id_entr = ?', [user.id]);
+      Object.assign(user, rows[0]);
+    } else if (user.role === 'chef_dept') {
+      const [rows] = await db.query('SELECT universite, departement FROM ChefDepartement WHERE id_chef = ?', [user.id]);
+      Object.assign(user, rows[0]);
     }
+    // admin : pas d’info spécifique
 
     res.json({ user });
   } catch (err) {
@@ -149,9 +154,60 @@ exports.getCurrentUser = async (req, res) => {
     res.status(500).json({ error: 'Erreur serveur' });
   }
 };
+exports.updateCurrentUser = async (req, res) => {
+  const {
+    nom,
+    prenom,
+    email,
+    mdps,
+    universite,
+    specialite,
+    niveau,
+    departement,
+    adr,
+    tel,
+    secteur
+  } = req.body;
 
-// Dashboards
-exports.etudiantDashboard = (req, res) => res.json({ message: 'Bienvenue étudiant', id: req.user.id });
-exports.entrepriseDashboard = (req, res) => res.json({ message: 'Bienvenue entreprise', id: req.user.id });
-exports.chefDashboard = (req, res) => res.json({ message: 'Bienvenue chef de département', id: req.user.id });
-exports.adminDashboard = (req, res) => res.json({ message: 'Bienvenue administrateur', id: req.user.id });
+  try {
+    // Mise à jour des données communes dans la table Utilisateur
+    await db.query(
+      'UPDATE Utilisateur SET nom = ?, prenom = ?, email = ? WHERE id = ?',
+      [nom, prenom, email, req.user.id]
+    );
+
+    // Mise à jour du mot de passe si fourni
+    if (mdps && mdps.length < 8) {
+      return res.status(400).json({ error: 'Le mot de passe doit contenir au moins 8 caractères' });
+    }
+    
+    if (mdps && mdps.length >= 8) {
+      const hashed = await bcrypt.hash(mdps, 10);
+      await db.query('UPDATE Utilisateur SET mdps = ? WHERE id = ?', [hashed, req.user.id]);
+    }
+    
+
+    // Mise à jour selon le rôle
+    if (req.user.role === 'etudiant') {
+      await db.query(
+        'UPDATE Etudiant SET universite = ?, specialite = ?, niveau = ?, departement = ? WHERE id_etud = ?',
+        [universite, specialite, niveau, departement, req.user.id]
+      );
+    } else if (req.user.role === 'entreprise') {
+      await db.query(
+        'UPDATE Entreprise SET adr = ?, tel = ?, secteur = ? WHERE id_entr = ?',
+        [adr, tel, secteur, req.user.id]
+      );
+    } else if (req.user.role === 'chef_dept') {
+      await db.query(
+        'UPDATE Chef_dept SET universite = ?, departement = ? WHERE id_chef = ?',
+        [universite, departement, req.user.id]
+      );
+    }
+
+    res.json({ message: 'Profil mis à jour avec succès' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erreur lors de la mise à jour' });
+  }
+};

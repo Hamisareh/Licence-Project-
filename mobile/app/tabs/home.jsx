@@ -10,7 +10,7 @@ export default function Home() {
     const fetchUser = async () => {
       const token = await AsyncStorage.getItem('token');
       try {
-        const { data } = await axios.get('http://192.168.251.20:5000/api/auth/me', {
+        const { data } = await axios.get('http://192.168.1.4:5000/api/auth/me', {
           headers: {
             Authorization: `Bearer ${token}`,
           },

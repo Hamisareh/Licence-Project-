@@ -1,189 +1,139 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, TextInput } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { View, Text, TextInput, Button, StyleSheet, ScrollView, Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const InfoRow = ({ label, value, icon, onEdit }) => (
-  <View style={styles.row}>
-    <Ionicons name={icon} size={20} color="#000041" style={styles.icon} />
-    <View style={styles.info}>
-      <Text style={styles.label}>{label}</Text>
-      <Text style={styles.value}>{value}</Text>
-    </View>
-    {onEdit && (
-      <TouchableOpacity onPress={onEdit}>
-        <Ionicons name="pencil-outline" size={20} color="#000041" />
-      </TouchableOpacity>
-    )}
-  </View>
-);
-
-export default function MesInformationsScreen({ isOwner = true }) {
-  const router = useRouter();
-
-  const [infos, setInfos] = useState({
-    nom: 'Benali',
-    prenom: 'Sofiane',
-    email: 'sofiane@ex.com',
-    universite: 'Université d’Oran',
-    specialite: 'Informatique',
-    matricule: '20215487',
-    niveau: 'Master 1',
-    departement: 'Math-Info',
+export default function ProfileDetails() {
+  const [form, setForm] = useState({
+    nom: '',
+    prenom: '',
+    email: '',
+    universite: '',
+    specialite: '',
+    niveau: '',
+    departement: '',
+    mdps: '',
   });
 
-  const [selectedKey, setSelectedKey] = useState(null);
-  const [editedValue, setEditedValue] = useState('');
-
-  const openEditModal = (key) => {
-    setSelectedKey(key);
-    setEditedValue(infos[key]);
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const token = await AsyncStorage.getItem('token');
+        const res = await fetch('http://192.168.1.4:5000/api/auth/me', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+  
+        // Vérifie la réponse brute
+        const responseText = await res.text();  // Récupère la réponse sous forme de texte brut
+        console.log('Réponse brute du serveur:', responseText);  // Affiche la réponse brute pour comprendre ce que le serveur renvoie
+  
+        try {
+          const data = JSON.parse(responseText);  // Tente de parser la réponse en JSON
+          console.log('Données utilisateur :', data);  // Affiche les données utilisateur
+          if (res.ok) {
+            const u = data.user;
+            setForm({
+              nom: u.nom,
+              prenom: u.prenom,
+              email: u.email,
+              universite: u.universite || '',
+              specialite: u.specialite || '',
+              niveau: u.niveau || '',
+              departement: u.departement || '',
+              mdps: '',
+            });
+          } else {
+            Alert.alert('Erreur', data.error || 'Échec de chargement');
+          }
+        } catch (error) {
+          console.error('Erreur de parsing JSON :', error);
+          Alert.alert('Erreur', 'La réponse du serveur n\'est pas au format JSON');
+        }
+  
+      } catch (err) {
+        console.error(err);
+        Alert.alert('Erreur', 'Impossible de récupérer les données utilisateur');
+      }
+    };
+  
+    fetchUser();
+  }, []);
+  
+  const handleChange = (key, value) => {
+    setForm({ ...form, [key]: value });
   };
 
-  const saveEdit = () => {
-    setInfos({ ...infos, [selectedKey]: editedValue });
-    setSelectedKey(null);
+  const handleSubmit = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      if (!token) {
+        Alert.alert('Erreur', 'Token manquant. Vous devez vous connecter.');
+        return;
+      }
+
+      const res = await fetch('http://192.168.1.4:5000/api/auth/me', {  // Remplace '192.168.x.x' par l'IP locale
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(form),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        Alert.alert('Succès', 'Profil mis à jour avec succès');
+      } else {
+        Alert.alert('Erreur', data.error || 'Échec de mise à jour');
+      }
+    } catch (err) {
+      console.error('Erreur de mise à jour:', err);
+      Alert.alert('Erreur', 'Impossible de mettre à jour');
+    }
   };
 
   return (
-    <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.push('/tabs/profil')}>
-          <Ionicons name="arrow-back-outline" size={24} color="#000041" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Mes Informations</Text>
-      </View>
+    <ScrollView contentContainerStyle={styles.container}>
+      <Text style={styles.title}>Mes informations</Text>
 
-      {/* Infos */}
-      <View style={styles.content}>
-        <InfoRow label="Nom" value={infos.nom} icon="person-outline" onEdit={isOwner ? () => openEditModal('nom') : null} />
-        <InfoRow label="Prénom" value={infos.prenom} icon="person-outline" onEdit={isOwner ? () => openEditModal('prenom') : null} />
-        <InfoRow label="Email" value={infos.email} icon="mail-outline" onEdit={isOwner ? () => openEditModal('email') : null} />
-        <InfoRow label="Université" value={infos.universite} icon="school-outline" onEdit={isOwner ? () => openEditModal('universite') : null} />
-        <InfoRow label="Spécialité" value={infos.specialite} icon="flask-outline" onEdit={isOwner ? () => openEditModal('specialite') : null} />
-        <InfoRow label="Niveau" value={infos.niveau} icon="book-outline" onEdit={isOwner ? () => openEditModal('niveau') : null} />
-        <InfoRow label="Département" value={infos.departement} icon="business-outline" onEdit={isOwner ? () => openEditModal('departement') : null} />
+      {['nom', 'prenom', 'email', 'universite', 'departement', 'specialite', 'niveau'].map((key) => (
+        <TextInput
+          key={key}
+          style={styles.input}
+          placeholder={key.charAt(0).toUpperCase() + key.slice(1)}
+          value={form[key]}
+          onChangeText={(text) => handleChange(key, text)}
+        />
+      ))}
 
-        {/* Visible only to owner */}
-        {isOwner && (
-          <InfoRow label="Matricule" value={infos.matricule} icon="card-outline" onEdit={() => openEditModal('matricule')} />
-        )}
-      </View>
+      <TextInput
+        style={styles.input}
+        placeholder="Mot de passe (laisser vide si inchangé)"
+        value={form.mdps}
+        secureTextEntry
+        onChangeText={(text) => handleChange('mdps', text)}
+      />
 
-      {/* Modal d'édition */}
-      <Modal visible={selectedKey !== null} transparent animationType="slide">
-        <View style={styles.modalContainer}>
-          <View style={styles.modal}>
-            <Text style={styles.modalTitle}>Modifier</Text>
-            <TextInput
-              style={styles.input}
-              value={editedValue}
-              onChangeText={setEditedValue}
-              placeholder="Nouvelle valeur"
-            />
-            <View style={styles.modalButtons}>
-              <TouchableOpacity onPress={saveEdit} style={styles.button}>
-                <Text style={styles.buttonText}>Enregistrer</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => setSelectedKey(null)} style={[styles.button, { backgroundColor: '#ccc' }]}>
-                <Text style={styles.buttonText}>Annuler</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
-    </View>
+      <Button title="Mettre à jour" onPress={handleSubmit} />
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#fff',
+    padding: 20,
+    gap: 12,
   },
-  header: {
-    backgroundColor: 'white',
-    paddingTop: 10,
-    paddingTop: 15,
-    paddingBottom: 15,
-    paddingVertical: 15,
-    paddingHorizontal: 15,
-    flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderBottomLeftRadius: 10,
-    borderBottomRightRadius: 10,
-    gap :8
-   
-  },
-  headerTitle: {
-    color: '#000041',
+  title: {
     fontSize: 20,
     fontWeight: 'bold',
-
-  },
-  content: {
-    paddingHorizontal: 25,
-    paddingTop: 25,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 14,
-    backgroundColor: '#f1f1fa',
-    marginBottom: 10,
-    borderRadius: 22,
-  },
-  icon: {
-    marginRight: 10,
-  },
-  info: {
-    flex: 1,
-  },
-  label: {
-    fontSize: 14,
-    color: '#555',
-  },
-  value: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#000',
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    backgroundColor: '#00000099',
-    paddingHorizontal: 30,
-  },
-  modal: {
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    padding: 20,
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#000041',
-    marginBottom: 15,
+    marginBottom: 16,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#aaa',
-    borderRadius: 8,
+    borderColor: '#ccc',
+    borderRadius: 6,
     padding: 10,
-    marginBottom: 15,
-  },
-  modalButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  button: {
-    backgroundColor: '#000041',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-  },
-  buttonText: {
-    color: '#fff',
   },
 });
