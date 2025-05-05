@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View, Text, TextInput, StyleSheet, FlatList, TouchableOpacity
-} from 'react-native';
+import { View, Text, TextInput, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Bell, Heart } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -14,32 +12,48 @@ const HomeScreen = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
 
-  const API_URL = 'http://192.168.251.20:5000/api/auth';
+  const api_URL = 'http://192.168.251.20:5000/api/auth';
 
   const fetchOffres = async () => {
     try {
-      const response = await axios.get(`${API_URL}/offres`);
+      const response = await axios.get(`${api_URL}/offres`);
       setOffres(response.data);
     } catch (error) {
-      console.error('Erreur lors du chargement des offres :', error);
-    } finally {
-      setLoading(false);
+      console.error('Erreur chargement offres:', error);
     }
   };
 
   const fetchFavoris = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
-      console.log('Token récupéré pour favoris:', token);
-
-      const response = await axios.get(`${API_URL}/favoris`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const response = await axios.get(`${api_URL}/favoris`, {
+        headers: { Authorization: `Bearer ${token}` }
       });
-
-      console.log('Favoris reçus:', response.data);
-      setFavoris(response.data); // ✅ mise à jour du state
+      setFavoris(response.data);
     } catch (error) {
-      console.error('Erreur chargement favoris :', error);
+      console.error('Erreur chargement favoris:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const toggleFavori = async (offre) => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      const response = await axios.post(
+        `${api_URL}/favoris/toggle`,
+        { offre_fav: offre.id_offre },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (response.data.action === 'added') {
+        setFavoris([...favoris, offre]);
+      } else {
+        setFavoris(favoris.filter(f => f.id_offre !== offre.id_offre));
+      }
+    } catch (error) {
+      console.error('Erreur toggleFavori:', error);
+      Alert.alert('Erreur', 'Action impossible');
     }
   };
 
@@ -48,31 +62,9 @@ const HomeScreen = () => {
     fetchFavoris();
   }, []);
 
-  const toggleFavori = async (offre) => {
-    try {
-      const token = await AsyncStorage.getItem('token'); // ✅ corrigé ici
-
-      const isFavori = favoris.includes(offre.id_offre);
-
-      if (isFavori) {
-        await axios.delete(`${API_URL}/favoris/${offre.id_offre}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setFavoris(favoris.filter(id => id !== offre.id_offre));
-      } else {
-        await axios.post(`${API_URL}/favoris`, { offre_fav: offre.id_offre }, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setFavoris([...favoris, offre.id_offre]);
-      }
-    } catch (error) {
-      console.error('Erreur ajout/suppression favori :', error);
-    }
-  };
-
   const filteredStages = offres.filter((stage) =>
     stage.titre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    stage.entreprise_nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (stage.entreprise_nom && stage.entreprise_nom.toLowerCase().includes(searchTerm.toLowerCase())) ||
     stage.domaine.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -98,7 +90,6 @@ const HomeScreen = () => {
           </TouchableOpacity>
         </View>
 
-        <View style={{ height: 25 }} />
         <View style={styles.searchContainer}>
           <TextInput
             style={styles.searchInput}
@@ -114,43 +105,65 @@ const HomeScreen = () => {
         data={filteredStages}
         keyExtractor={(item) => item.id_offre.toString()}
         renderItem={({ item }) => (
-          <TouchableOpacity style={styles.card} onPress={() => handlePress(item)}>
-            <Text style={styles.title}>{item.titre}</Text>
-            <Text style={styles.entreprise}>Entreprise : {item.entreprise_nom}</Text>
-            <Text style={styles.domaine}>{item.domaine}</Text>
-            <Text style={styles.duree}>{item.duree}</Text>
-            <TouchableOpacity onPress={() => toggleFavori(item)} style={styles.favoriteIcon}>
+          <View style={styles.card}>
+            <TouchableOpacity onPress={() => handlePress(item)} activeOpacity={0.8}>
+              <Text style={styles.title}>{item.titre}</Text>
+              <Text style={styles.entreprise}>Entreprise: {item.entreprise_nom || 'Non spécifiée'}</Text>
+              <Text style={styles.domaine}>{item.domaine}</Text>
+              <Text style={styles.duree}>Durée: {item.duree} mois</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => toggleFavori(item)}
+              style={styles.favoriteIcon}
+            >
               <Heart
                 size={24}
-                color={favoris.includes(item.id_offre) ? 'red' : 'gray'}
+                color={favoris.some(f => f.id_offre === item.id_offre) ? 'red' : 'gray'}
+                fill={favoris.some(f => f.id_offre === item.id_offre) ? 'red' : 'none'}
               />
             </TouchableOpacity>
-          </TouchableOpacity>
+          </View>
         )}
         contentContainerStyle={{ padding: 20, paddingTop: 10 }}
       />
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
   header: {
-    backgroundColor: '#000041', paddingTop: 15, paddingHorizontal: 20,
-    paddingBottom: 40, borderBottomRightRadius: 30, borderBottomLeftRadius: 30,
+    backgroundColor: '#000041',
+    paddingTop: 15,
+    paddingHorizontal: 20,
+    paddingBottom: 40,
+    borderBottomRightRadius: 30,
+    borderBottomLeftRadius: 30,
   },
-  topRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  topRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
   appTitle: { fontSize: 22, fontWeight: 'bold' },
   stage: { color: '#fff' },
   flow: { color: '#ff7b00' },
   searchContainer: {
-    backgroundColor: '#fff', borderRadius: 15,
-    paddingHorizontal: 10, paddingVertical: 3, borderWidth: 1, borderColor: '#ccc',
+    backgroundColor: '#fff',
+    borderRadius: 15,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    borderWidth: 1,
+    borderColor: '#ccc',
   },
   searchInput: { fontSize: 16, color: '#333' },
   card: {
-    backgroundColor: '#f9f9f9', borderRadius: 12,
-    padding: 15, marginBottom: 15, elevation: 2, marginHorizontal: 5,
+    backgroundColor: '#f9f9f9',
+    borderRadius: 12,
+    padding: 15,
+    marginBottom: 15,
+    elevation: 2,
+    marginHorizontal: 5,
+    position: 'relative',
   },
   title: { fontSize: 18, fontWeight: 'bold', color: '#000041' },
   entreprise: { fontSize: 14, color: '#555', marginBottom: 4 },

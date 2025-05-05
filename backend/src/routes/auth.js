@@ -38,6 +38,5 @@ router.get('/offres//:id_offre', offreCtrl.getOffreById);
 
 //favori
 router.get('/favoris', verifyToken, requireRole('etudiant'), favoriController.getFavoris);
-router.post('/favoris', verifyToken, requireRole('etudiant'), favoriController.addFavori);
-router.delete('/favoris/:offreId', verifyToken, requireRole('etudiant'), favoriController.removeFavori);
+router.post('/favoris/toggle', verifyToken, requireRole('etudiant'), favoriController.toggleFavori);
 module.exports = router;

@@ -72,7 +72,7 @@ CREATE TABLE favoris (
     etudiant INT,
     offre_fav INT,
     PRIMARY KEY (etudiant, offre_fav),
-    FOREIGN KEY (etudiant) REFERENCES Etudiant(id_etud) ON DELETE CASCADE,
+    FOREIGN KEY (etudiant) REFERENCES utilisateur(id) ON DELETE CASCADE,
     FOREIGN KEY (offre_fav) REFERENCES offrestage(id_offre) ON DELETE CASCADE
 );
 
