@@ -11,26 +11,50 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     try {
+      // Essayer de se connecter
       const { data } = await login(email, password);
+      console.log('Réponse du backend:', data); // ← vérifier la réponse
   
-      // Sauvegarder token + rôle dans AsyncStorage
-      await AsyncStorage.setItem('token', data.token);
-      await AsyncStorage.setItem('role', data.role);
+      // Vérifier si on reçoit un token
+      if (data && data.token) {
+        // Sauvegarder le token + rôle dans AsyncStorage
+        await AsyncStorage.setItem('token', data.token);
+        await AsyncStorage.setItem('role', data.role);
   
-      // Redirection vers la page d'accueil (tab/home)
-      router.replace('/tabs/home');
+        // ← ← ← Ajouter cette ligne pour vérifier ce qui est sauvegardé
+        const savedToken = await AsyncStorage.getItem('token');
+        console.log('Token sauvegardé après login:', savedToken);
+  
+        // Redirection vers la page d'accueil
+        router.replace('/tabs/home');
+      } else {
+        // Si le token n'est pas présent, afficher une erreur
+        Alert.alert('Erreur', 'Token manquant dans la réponse');
+      }
     } catch (err) {
-      console.error("Erreur de connexion :", err);
+      console.error('Erreur de connexion:', err);
       const errorMessage = err.response?.data?.error || err.message || 'Connexion échouée';
       Alert.alert('Erreur', errorMessage);
     }
   };
+  
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Connexion</Text>
-      <TextInput style={styles.input} placeholder="Email" value={email} onChangeText={setEmail} />
-      <TextInput style={styles.input} placeholder="Mot de passe" secureTextEntry value={password} onChangeText={setPassword} />
+      <TextInput
+        style={styles.input}
+        placeholder="Email"
+        value={email}
+        onChangeText={setEmail}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Mot de passe"
+        secureTextEntry
+        value={password}
+        onChangeText={setPassword}
+      />
 
       <TouchableOpacity style={styles.button} onPress={handleLogin}>
         <Text style={styles.buttonText}>Se connecter</Text>

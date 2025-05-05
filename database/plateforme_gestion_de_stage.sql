@@ -40,7 +40,7 @@ CREATE TABLE Administrateur (
 );
 
 
-CREATE TABLE OffreStage (
+CREATE TABLE offrestage (
     id_offre INT AUTO_INCREMENT PRIMARY KEY,
     entr INT,
     titre VARCHAR(100),
@@ -63,16 +63,17 @@ CREATE TABLE Candidature (
     etat_sta VARCHAR(50),
     PRIMARY KEY (candidat, offre),
     FOREIGN KEY (candidat) REFERENCES Etudiant(id_etud) ON DELETE CASCADE,
-    FOREIGN KEY (offre) REFERENCES OffreStage(id_offre) ON DELETE CASCADE
+    FOREIGN KEY (offre) REFERENCES offrestage(id_offre) ON DELETE CASCADE
 );
 
 
-CREATE TABLE Favoris (
+
+CREATE TABLE favoris (
     etudiant INT,
     offre_fav INT,
     PRIMARY KEY (etudiant, offre_fav),
     FOREIGN KEY (etudiant) REFERENCES Etudiant(id_etud) ON DELETE CASCADE,
-    FOREIGN KEY (offre_fav) REFERENCES OffreStage(id_offre) ON DELETE CASCADE
+    FOREIGN KEY (offre_fav) REFERENCES offrestage(id_offre) ON DELETE CASCADE
 );
 
 CREATE TABLE Evaluation (
@@ -88,7 +89,7 @@ CREATE TABLE Evaluation (
     PRIMARY KEY (evaluateur, evalue, id_offre),
     FOREIGN KEY (evaluateur) REFERENCES Entreprise(id_entr) ON DELETE CASCADE,
     FOREIGN KEY (evalue) REFERENCES Etudiant(id_etud) ON DELETE CASCADE,
-    FOREIGN KEY (id_offre) REFERENCES OffreStage(id_offre) ON DELETE CASCADE
+    FOREIGN KEY (id_offre) REFERENCES offrestage(id_offre) ON DELETE CASCADE
 );
 
 

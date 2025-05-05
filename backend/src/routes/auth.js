@@ -3,6 +3,8 @@ const router = express.Router();
 const controller = require('../controllers/auth');
 const { verifyToken, requireRole } = require('../middlewares/authMiddleware');
 const { getUserById } = require('../models/user');
+const offreCtrl = require('../controllers/offreController');
+const favoriController = require('../controllers/favoriController');
 
 // 🔐 Authentification
 router.post('/register', controller.register);
@@ -30,5 +32,12 @@ router.get('/chef/mon-espace', verifyToken, requireRole('chef_dept'), (req, res)
 router.get('/admin/mon-espace', verifyToken, requireRole('admin'), (req, res) => {
   res.json({ message: 'Bienvenue administrateur', id: req.user.id });
 });
+// 🔐 Offres
+router.get('/offres', offreCtrl.getAllOffres);
+router.get('/offres//:id_offre', offreCtrl.getOffreById);
 
+//favori
+router.get('/favoris', verifyToken, requireRole('etudiant'), favoriController.getFavoris);
+router.post('/favoris', verifyToken, requireRole('etudiant'), favoriController.addFavori);
+router.delete('/favoris/:offreId', verifyToken, requireRole('etudiant'), favoriController.removeFavori);
 module.exports = router;
