@@ -1,60 +1,38 @@
 const db = require('../config/db');
 
 const Offre = {
-    getAll: async () => {
-      const [rows] = await db.query(`
-        SELECT o.*, u.nom AS entreprise_nom
-        FROM offrestage o
-        JOIN Utilisateur u ON o.entr = u.id
-      `);
-  
-      // On formate pour avoir une propriété "entreprise_nom"
-      return rows.map(offre => ({
-        ...offre,
-        entreprise_nom: offre.entreprise_nom, // déjà présent, mais pour clarté
-      }));
-    },
-  
-    getById: async (id) => {
-      const [rows] = await db.query(`
-        SELECT o.*, u.nom AS entreprise_nom
-        FROM offrestage o
-        JOIN Utilisateur u ON o.entr = u.id
-        WHERE o.id_offre = ?
-      `, [id]);
-  
-      if (rows.length === 0) return null;
-  
-      return {
-        ...rows[0],
-        entreprise_nom: rows[0].entreprise_nom
-      };
-    },
-  
-  getFavorisByUserId: async (userId) => {
+  getAllLight: async () => {
     const [rows] = await db.query(`
-      SELECT o.*, u.nom AS entreprise_nom
+      SELECT 
+        o.id_offre,
+        o.titre,
+        o.domaine,
+        o.duree,
+        u.nom AS entreprise_nom
       FROM offrestage o
-      JOIN Favoris f ON o.id_offre = f.id_offre
-      JOIN Utilisateur u ON o.id_utilisateur = u.id
-      WHERE f.id_user = ?
-    `, [userId]);
-
-    return rows.map(offre => ({
-      ...offre,
-      entr: {
-        nom: offre.entreprise_nom
-      }
-    }));
+      JOIN Utilisateur u ON o.entr = u.id
+      ORDER BY o.date_debut DESC
+    `);
+    return rows;
   },
 
-  addFavori: async (userId, offreId) => {
-    await db.query('INSERT IGNORE INTO Favoris (id_user, id_offre) VALUES (?, ?)', [userId, offreId]);
-  },
-
-  removeFavori: async (userId, offreId) => {
-    await db.query('DELETE FROM Favoris WHERE id_user = ? AND id_offre = ?', [userId, offreId]);
-  },
+  getCompleteById: async (id) => {
+    const [rows] = await db.query(`
+      SELECT 
+        o.*,
+        u.nom AS entreprise_nom,
+        u.email AS entreprise_email,
+        e.tel AS entreprise_tel,
+        e.secteur AS entreprise_secteur,
+         e.adr AS entreprise_adr
+      FROM offrestage o
+      JOIN Utilisateur u ON o.entr = u.id
+      LEFT JOIN Entreprise e ON u.id = e.id_entr
+      WHERE o.id_offre = ?`,
+      [id]
+    );
+    return rows[0] || null;
+  }
 };
 
 module.exports = Offre;

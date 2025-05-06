@@ -1,21 +1,33 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, Button, StyleSheet, ScrollView, TouchableOpacity, Modal } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
-import { useLocalSearchParams, useRouter } from 'expo-router';
 
-export default function ApplyFormModal() {
-  const router = useRouter();
-  const { titre, entr } = useLocalSearchParams();
-
+const ApplyFormModal = ({ visible, onClose, offre, userData }) => {
   const [formData, setFormData] = useState({
     nom: '',
+    prenom: '',
     niveau: '',
     departement: '',
     specialite: '',
     universite: '',
     email: '',
-    cv: null, // on stockera ici le fichier
+    cv: null,
   });
+
+  useEffect(() => {
+    if (userData) {
+      setFormData({
+        nom: userData.nom || '',
+        prenom: userData.prenom || '',
+        email: userData.email || '',
+        universite: userData.universite || '',
+        specialite: userData.specialite || '',
+        niveau: userData.niveau || '',
+        departement: userData.departement || '',
+        cv: null
+      });
+    }
+  }, [userData]);
 
   const handleChange = (name, value) => {
     setFormData({ ...formData, [name]: value });
@@ -25,79 +37,139 @@ export default function ApplyFormModal() {
     const result = await DocumentPicker.getDocumentAsync({
       type: 'application/pdf',
     });
-
     if (result.type === 'success') {
       setFormData({ ...formData, cv: result });
     }
   };
 
-  const handleSend = () => {
-    console.log('Formulaire envoyé :', formData);
-    // ici tu pourras envoyer le CV (result.uri) vers Supabase
-    router.back();
+  const handleSubmit = async () => {
+    try {
+      // Envoyer les données au backend
+      const token = await AsyncStorage.getItem('token');
+      const formPayload = new FormData();
+      
+      // Ajouter tous les champs du formulaire
+      Object.entries(formData).forEach(([key, value]) => {
+        if (key !== 'cv' && value) {
+          formPayload.append(key, value);
+        }
+      });
+      
+      // Ajouter le CV si présent
+      if (formData.cv) {
+        formPayload.append('cv', {
+          uri: formData.cv.uri,
+          name: formData.cv.name,
+          type: 'application/pdf'
+        });
+      }
+      
+      // Ajouter l'ID de l'offre
+      formPayload.append('offre_id', offre.id_offre);
+
+      const response = await axios.post(
+        `${api_URL}/candidatures`,
+        formPayload,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      Alert.alert('Succès', 'Votre candidature a été envoyée !');
+      onClose();
+    } catch (error) {
+      console.error('Erreur:', error);
+      Alert.alert('Erreur', 'Une erreur est survenue lors de l\'envoi');
+    }
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Candidature pour {titre} chez {entr}</Text>
-
-      {['nom', 'niveau', 'departement', 'specialite', 'universite', 'email'].map((key) => (
-        <TextInput
-          key={key}
-          placeholder={key.charAt(0).toUpperCase() + key.slice(1)}
-          value={formData[key]}
-          onChangeText={(text) => handleChange(key, text)}
-          style={styles.input}
-        />
-      ))}
-
-      {/* Bouton pour choisir le CV */}
-      <TouchableOpacity onPress={pickCV} style={styles.cvButton}>
-        <Text style={styles.cvButtonText}>
-          {formData.cv ? `CV sélectionné : ${formData.cv.name}` : 'Choisir un CV (PDF)'}
+    <Modal
+      visible={visible}
+      animationType="slide"
+      onRequestClose={onClose}
+    >
+      <ScrollView contentContainerStyle={styles.modalContainer}>
+        <Text style={styles.modalTitle}>
+          Postuler à {offre.titre} chez {offre.entreprise_nom}
         </Text>
-      </TouchableOpacity>
 
-      <Button title="Envoyer" color="#000041" onPress={handleSend} />
-      <View style={{ marginTop: 10 }}>
-        <Button title="Annuler" color="#888" onPress={() => router.back()} />
-      </View>
-    </ScrollView>
+        {['nom', 'prenom', 'email', 'universite', 'departement', 'specialite', 'niveau'].map((field) => (
+          <TextInput
+            key={field}
+            style={styles.input}
+            placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
+            value={formData[field]}
+            onChangeText={(text) => handleChange(field, text)}
+            editable={field !== 'email'} // Email non modifiable
+          />
+        ))}
+
+        <TouchableOpacity onPress={pickCV} style={styles.cvButton}>
+          <Text style={styles.cvButtonText}>
+            {formData.cv ? `CV sélectionné: ${formData.cv.name}` : 'Choisir un CV (PDF)'}
+          </Text>
+        </TouchableOpacity>
+
+        <View style={styles.buttonContainer}>
+          <Button
+            title="Envoyer la candidature"
+            onPress={handleSubmit}
+            color="#000041"
+          />
+          <Button
+            title="Annuler"
+            onPress={onClose}
+            color="#888"
+            style={styles.cancelButton}
+          />
+        </View>
+      </ScrollView>
+    </Modal>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  container: {
+  modalContainer: {
     padding: 20,
-    paddingTop: 60,
-    backgroundColor: '#fff',
+    paddingTop: 40,
   },
-  title: {
+  modalTitle: {
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 20,
     color: '#000041',
+    textAlign: 'center',
   },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    fontSize: 16,
+    borderRadius: 8,
+    padding: 12,
     marginBottom: 15,
+    fontSize: 16,
   },
   cvButton: {
     borderWidth: 1,
     borderColor: '#000041',
-    borderRadius: 10,
+    borderRadius: 8,
     padding: 12,
     marginBottom: 20,
-    backgroundColor: '#f0f0f0',
+    alignItems: 'center',
   },
   cvButtonText: {
     color: '#000041',
     fontSize: 16,
-    textAlign: 'center',
+  },
+  buttonContainer: {
+    gap: 10,
+  },
+  cancelButton: {
+    marginTop: 10,
   },
 });
+
+export default ApplyFormModal;

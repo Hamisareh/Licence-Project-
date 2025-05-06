@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
+import { 
+  View, 
+  Text, 
+  TextInput, 
+  StyleSheet, 
+  FlatList, 
+  TouchableOpacity, 
+  ActivityIndicator,
+  RefreshControl // Import manquant ajouté ici
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import { Bell, Heart } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -11,56 +20,70 @@ const HomeScreen = () => {
   const [favoris, setFavoris] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   const api_URL = 'http://192.168.251.20:5000/api/auth';
 
-  const fetchOffres = async () => {
+  const fetchData = async () => {
     try {
-      const response = await axios.get(`${api_URL}/offres`);
-      setOffres(response.data);
+      const token = await AsyncStorage.getItem('token');
+      const [offresRes, favorisRes] = await Promise.all([
+        axios.get(`${api_URL}/offres`),
+        axios.get(`${api_URL}/favoris`, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+      ]);
+      setOffres(offresRes.data);
+      setFavoris(favorisRes.data.map(f => f.id_offre));
     } catch (error) {
-      console.error('Erreur chargement offres:', error);
+      console.error('Erreur:', error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
     }
   };
 
-  const fetchFavoris = async () => {
-    try {
-      const token = await AsyncStorage.getItem('token');
-      const response = await axios.get(`${api_URL}/favoris`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setFavoris(response.data);
-    } catch (error) {
-      console.error('Erreur chargement favoris:', error);
-    } finally {
-      setLoading(false);
-    }
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchData();
   };
 
   const toggleFavori = async (offre) => {
     try {
       const token = await AsyncStorage.getItem('token');
+      const isFavori = favoris.includes(offre.id_offre);
+      
+      // Utilisez le même endpoint que la version 1 qui marche
       const response = await axios.post(
         `${api_URL}/favoris/toggle`,
         { offre_fav: offre.id_offre },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
+  
+      // Mettez à jour l'état en fonction de la réponse
       if (response.data.action === 'added') {
-        setFavoris([...favoris, offre]);
+        setFavoris([...favoris, offre.id_offre]);
       } else {
-        setFavoris(favoris.filter(f => f.id_offre !== offre.id_offre));
+        setFavoris(favoris.filter(id => id !== offre.id_offre));
       }
     } catch (error) {
-      console.error('Erreur toggleFavori:', error);
-      Alert.alert('Erreur', 'Action impossible');
+      console.error('Erreur:', error.response?.data || error.message);
     }
   };
 
-  useEffect(() => {
-    fetchOffres();
-    fetchFavoris();
-  }, []);
+  const handlePress = (offre) => {
+    router.push({
+      pathname: '/offer-details',
+      params: {
+        id: offre.id_offre.toString() // On ne passe que l'ID
+      }
+    });
+  };
+  
 
   const filteredStages = offres.filter((stage) =>
     stage.titre.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -68,14 +91,13 @@ const HomeScreen = () => {
     stage.domaine.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handlePress = (offre) => {
-    router.push({
-      pathname: '../offre-details',
-      params: { id_offre: offre.id_offre }
-    });
-  };
-
-  if (loading) return <Text style={{ padding: 20 }}>Chargement...</Text>;
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#000041" />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -118,19 +140,36 @@ const HomeScreen = () => {
             >
               <Heart
                 size={24}
-                color={favoris.some(f => f.id_offre === item.id_offre) ? 'red' : 'gray'}
-                fill={favoris.some(f => f.id_offre === item.id_offre) ? 'red' : 'none'}
+                color={favoris.includes(item.id_offre) ? 'red' : 'gray'}
+                fill={favoris.includes(item.id_offre) ? 'red' : 'none'}
               />
             </TouchableOpacity>
           </View>
         )}
         contentContainerStyle={{ padding: 20, paddingTop: 10 }}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={['#000041']}
+            tintColor="#000041"
+          />
+        }
+        ListEmptyComponent={
+          <Text style={styles.emptyText}>Aucune offre trouvée</Text>
+        }
       />
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
   header: {
     backgroundColor: '#000041',
     paddingTop: 15,
@@ -170,6 +209,12 @@ const styles = StyleSheet.create({
   domaine: { fontSize: 16, color: '#ff7b00', marginBottom: 2 },
   duree: { fontSize: 14, color: '#333' },
   favoriteIcon: { position: 'absolute', top: 15, right: 15 },
+  emptyText: {
+    textAlign: 'center',
+    marginTop: 20,
+    color: '#666',
+    fontSize: 16
+  }
 });
 
 export default HomeScreen;

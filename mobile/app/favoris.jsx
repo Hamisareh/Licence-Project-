@@ -1,64 +1,52 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, StyleSheet, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { getToken } from '../utils/storage'; // Assure-toi que le chemin est correct
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Favoris = () => {
   const [favoris, setFavoris] = useState([]);
   const [loading, setLoading] = useState(true);
+  const api_URL = 'http://192.168.251.20:5000/api/auth';
 
-  // Fonction pour récupérer les favoris avec un token
-  const fetchFavoris = async (token) => {
+  const fetchFavoris = async () => {
     try {
-      const res = await fetch('http://192.168.251.20:5000/api/auth/favoris', {
-        headers: {
-          Authorization: `Bearer ${token}` // Ajout du token dans l'en-tête
-        },
+      const token = await AsyncStorage.getItem('token');
+      const response = await axios.get(`${api_URL}/favoris`, {
+        headers: { Authorization: `Bearer ${token}` }
       });
-      const data = await res.json();
-      setFavoris(data);
-      setLoading(false);
+      setFavoris(response.data);
     } catch (err) {
-      console.error('Erreur lors du chargement des favoris:', err);
+      Alert.alert('Erreur', 'Impossible de charger les favoris');
+      console.error(err);
+    } finally {
       setLoading(false);
     }
   };
 
-  // Fonction pour supprimer un favori avec un token
-  const removeFavori = async (offreId, token) => {
+  const toggleFavori = async (offreId) => {
     try {
-      await fetch('http://192.168.251.20:5000/api/auth/favoris', {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}` // Ajout du token dans l'en-tête
-        },
-        body: JSON.stringify({ offreId })
-      });
-      // Mise à jour des favoris après suppression
-      setFavoris(favoris.filter(o => o.id_offre !== offreId));
+      const token = await AsyncStorage.getItem('token');
+      const response = await axios.post(
+        `${api_URL}/favoris/toggle`,
+        { offre_fav: offreId },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (response.data.action === 'removed') {
+        setFavoris(favoris.filter(o => o.id_offre !== offreId));
+      }
     } catch (err) {
-      console.error('Erreur lors de la suppression du favori:', err);
+      Alert.alert('Erreur', 'Action impossible');
+      console.error(err);
     }
   };
 
-  // Récupérer le token et charger les favoris
-  const loadFavoris = async () => {
-    const token = await getToken(); // Récupérer le token depuis AsyncStorage
-    if (token) {
-      fetchFavoris(token); // Charger les favoris avec le token
-    } else {
-      console.log('Token introuvable');
-    }
-  };
-
-  // Charger les favoris au démarrage du composant
   useEffect(() => {
-    loadFavoris();
+    fetchFavoris();
   }, []);
 
-  // Afficher un indicateur de chargement si nécessaire
-  if (loading) return <ActivityIndicator size="large" color="red" />;
+  if (loading) return <ActivityIndicator size="large" color="#000041" />;
 
   return (
     <View style={styles.container}>
@@ -70,7 +58,10 @@ const Favoris = () => {
             <Text style={styles.title}>{item.titre}</Text>
             <Text style={styles.company}>{item.entreprise_nom}</Text>
             <Text style={styles.details}>{item.domaine} • {item.duree} mois</Text>
-            <TouchableOpacity style={styles.favoriteIcon} onPress={() => removeFavori(item.id_offre)}>
+            <TouchableOpacity 
+              style={styles.favoriteIcon} 
+              onPress={() => toggleFavori(item.id_offre)}
+            >
               <Ionicons name="heart" size={24} color="red" />
             </TouchableOpacity>
           </View>
@@ -79,6 +70,8 @@ const Favoris = () => {
     </View>
   );
 };
+
+// ... styles inchangés ...
 
 const styles = StyleSheet.create({
   container: {

@@ -53,7 +53,7 @@ export default function ProfileScreen() {
   };
 
   const menuItems = [
-    { label: 'Mes informations', icon: 'person-outline', path: '/profile-details' },
+    { label: 'Mes informations', icon: 'person-outline', path: '../profile-details' },
     { label: 'Mes favoris', icon: 'heart-outline', path: '../favoris' },
     { label: 'Mes documents', icon: 'document-text-outline', path: '/documents' },
     { label: 'Changer le mot de passe', icon: 'key-outline', path: '/change-password' },

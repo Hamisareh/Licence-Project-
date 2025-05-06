@@ -33,10 +33,12 @@ router.get('/admin/mon-espace', verifyToken, requireRole('admin'), (req, res) =>
   res.json({ message: 'Bienvenue administrateur', id: req.user.id });
 });
 // 🔐 Offres
-router.get('/offres', offreCtrl.getAllOffres);
-router.get('/offres//:id_offre', offreCtrl.getOffreById);
+router.get('/offres', offreCtrl.getOffresLight); // Pour home.jsx
+router.get('/offres/:id_offre', offreCtrl.getOffreComplete); // Pour offre-details.jsx
 
 //favori
 router.get('/favoris', verifyToken, requireRole('etudiant'), favoriController.getFavoris);
 router.post('/favoris/toggle', verifyToken, requireRole('etudiant'), favoriController.toggleFavori);
 module.exports = router;
+
+//candidature

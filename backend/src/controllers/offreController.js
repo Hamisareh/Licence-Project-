@@ -1,23 +1,21 @@
 const Offre = require('../models/offre');
 
-exports.getAllOffres = async (req, res) => {
+exports.getOffresLight = async (req, res) => {
   try {
-    const offres = await Offre.getAll();
+    const offres = await Offre.getAllLight();
     res.json(offres);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Erreur lors de la récupération des offres' });
+  } catch (error) {
+    console.error('Erreur getOffresLight:', error);
+    res.status(500).json({ error: 'Erreur serveur' });
   }
 };
 
-
-exports.getOffreById = async (req, res) => {
+exports.getOffreComplete = async (req, res) => {
   try {
-    const offre = await Offre.getById(req.params.id);
-    if (!offre) return res.status(404).json({ error: 'Offre non trouvée' });
-    res.json(offre);
+    const offre = await Offre.getCompleteById(req.params.id_offre);
+    res.json(offre || {});
   } catch (error) {
-    console.error('Erreur getOffreById:', error);
+    console.error('Erreur getOffreComplete:', error);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 };

@@ -54,19 +54,17 @@ CREATE TABLE offrestage (
     FOREIGN KEY (entr) REFERENCES Entreprise(id_entr) ON DELETE SET NULL
 );
 
-
 CREATE TABLE Candidature (
     candidat INT,
     offre INT,
     date_cand DATE,
-    etat_cand VARCHAR(50),
-    etat_sta VARCHAR(50),
+    etat_cand VARCHAR(50)  DEFAULT 'en_attente',
+    etat_sta VARCHAR(50) DEFAULT NULL,
+    cv VARCHAR(255) ,
     PRIMARY KEY (candidat, offre),
     FOREIGN KEY (candidat) REFERENCES Etudiant(id_etud) ON DELETE CASCADE,
     FOREIGN KEY (offre) REFERENCES offrestage(id_offre) ON DELETE CASCADE
 );
-
-
 
 CREATE TABLE favoris (
     etudiant INT,
