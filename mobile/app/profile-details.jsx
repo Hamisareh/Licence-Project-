@@ -17,7 +17,7 @@ export default function ProfileDetails() {
     const fetchUser = async () => {
       try {
         const token = await AsyncStorage.getItem('token');
-        const res = await fetch('http://192.168.251.20:5000/api/auth/me', {
+        const res = await fetch('http://192.168.246.20:5000/api/auth/me', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -69,7 +69,7 @@ export default function ProfileDetails() {
         return;
       }
 
-      const res = await fetch('http://192.168.251.20:5000/api/auth/me', {
+      const res = await fetch('http://192.168.246.20:5000/api/auth/me', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

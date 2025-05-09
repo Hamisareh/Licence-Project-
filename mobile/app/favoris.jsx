@@ -7,7 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const Favoris = () => {
   const [favoris, setFavoris] = useState([]);
   const [loading, setLoading] = useState(true);
-  const api_URL = 'http://192.168.251.20:5000/api/auth';
+  const api_URL = 'http://192.168.246.20:5000/api/auth';
 
   const fetchFavoris = async () => {
     try {

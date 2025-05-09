@@ -5,9 +5,12 @@ CREATE TABLE Utilisateur (
     prenom VARCHAR(100),
     email VARCHAR(100) UNIQUE NOT NULL,
     mdps TEXT NOT NULL,
+    token_confirmation VARCHAR(255),
+    email_verifie BOOLEAN DEFAULT false,
+    reset_token VARCHAR(255),
+    reset_token_expire DATETIME,
     role ENUM('etudiant', 'entreprise', 'chef_dept', 'admin') NOT NULL
 );
-
 
 CREATE TABLE Etudiant (
     id_etud INT PRIMARY KEY,
@@ -57,10 +60,11 @@ CREATE TABLE offrestage (
 CREATE TABLE Candidature (
     candidat INT,
     offre INT,
-    date_cand DATE,
-    etat_cand VARCHAR(50)  DEFAULT 'en_attente',
-    etat_sta VARCHAR(50) DEFAULT NULL,
-    cv VARCHAR(255) ,
+    date_cand DATE NOT NULL,
+    etat_cand VARCHAR(50) DEFAULT 'en_attente',        -- État de la candidature : en_attente, acceptée, refusée, etc.
+    etat_sta VARCHAR(50) DEFAULT NULL,                 -- État du stage : en_cours, terminé, etc.
+    cv VARCHAR(255),                                   -- Lien ou nom du fichier CV
+    statut_validation_chef VARCHAR(50) DEFAULT NULL,   -- Par exemple : convention_envoyée, refusée, etc.
     PRIMARY KEY (candidat, offre),
     FOREIGN KEY (candidat) REFERENCES Etudiant(id_etud) ON DELETE CASCADE,
     FOREIGN KEY (offre) REFERENCES offrestage(id_offre) ON DELETE CASCADE
@@ -88,17 +92,6 @@ CREATE TABLE Evaluation (
     FOREIGN KEY (evaluateur) REFERENCES Entreprise(id_entr) ON DELETE CASCADE,
     FOREIGN KEY (evalue) REFERENCES Etudiant(id_etud) ON DELETE CASCADE,
     FOREIGN KEY (id_offre) REFERENCES offrestage(id_offre) ON DELETE CASCADE
-);
-
-
-CREATE TABLE Messagerie (
-    id_msg INT AUTO_INCREMENT PRIMARY KEY,
-    expediteur INT,
-    destinataire INT,
-    message TEXT,
-    date_envoi DATETIME,
-    FOREIGN KEY (expediteur) REFERENCES Utilisateur(id) ON DELETE CASCADE,
-    FOREIGN KEY (destinataire) REFERENCES Utilisateur(id) ON DELETE CASCADE
 );
 
 

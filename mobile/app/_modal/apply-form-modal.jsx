@@ -1,6 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, ScrollView, TouchableOpacity, Modal } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  Button,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Modal,
+  Alert
+} from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as FileSystem from 'expo-file-system';
 
 const ApplyFormModal = ({ visible, onClose, offre, userData }) => {
   const [formData, setFormData] = useState({
@@ -13,6 +26,8 @@ const ApplyFormModal = ({ visible, onClose, offre, userData }) => {
     email: '',
     cv: null,
   });
+
+  const api_URL = 'http://192.168.246.20:5000/api/auth';
 
   useEffect(() => {
     if (userData) {
@@ -34,64 +49,90 @@ const ApplyFormModal = ({ visible, onClose, offre, userData }) => {
   };
 
   const pickCV = async () => {
-    const result = await DocumentPicker.getDocumentAsync({
-      type: 'application/pdf',
-    });
-    if (result.type === 'success') {
-      setFormData({ ...formData, cv: result });
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: 'application/pdf',
+        copyToCacheDirectory: true,
+        multiple: false,
+      });
+  
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const asset = result.assets[0];
+  
+        const file = {
+          uri: asset.uri,
+          name: asset.name ?? 'cv.pdf',
+          type: asset.mimeType ?? 'application/pdf',
+          size: asset.size ?? 0
+        };
+  
+        console.log("📄 Fichier sélectionné :", file);
+  
+        setFormData(prev => ({
+          ...prev,
+          cv: file
+        }));
+      } else {
+        console.log("❌ Sélection annulée");
+      }
+    } catch (error) {
+      console.error("Erreur sélection CV :", error);
+      Alert.alert("Erreur", error.message || "Erreur lors de la sélection du fichier");
     }
   };
-
+  
   const handleSubmit = async () => {
     try {
-      // Envoyer les données au backend
+      console.log("Données du CV :", formData.cv);
+      if (!formData?.cv?.uri) {
+        Alert.alert('Erreur', 'Aucun CV sélectionné');
+        return;
+      }
+
       const token = await AsyncStorage.getItem('token');
+      if (!token) throw new Error('Non authentifié');
+
       const formPayload = new FormData();
-      
-      // Ajouter tous les champs du formulaire
-      Object.entries(formData).forEach(([key, value]) => {
-        if (key !== 'cv' && value) {
-          formPayload.append(key, value);
+
+      Object.keys(formData).forEach(key => {
+        if (key !== 'cv' && formData[key]) {
+          formPayload.append(key, formData[key]);
         }
       });
-      
-      // Ajouter le CV si présent
+      console.log("🧾 Données du CV au submit :", formData.cv);
+
       if (formData.cv) {
         formPayload.append('cv', {
           uri: formData.cv.uri,
           name: formData.cv.name,
-          type: 'application/pdf'
+          type: formData.cv.type
         });
       }
-      
-      // Ajouter l'ID de l'offre
+
       formPayload.append('offre_id', offre.id_offre);
 
-      const response = await axios.post(
-        `${api_URL}/candidatures`,
-        formPayload,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            Authorization: `Bearer ${token}`
-          }
-        }
-      );
+      const response = await fetch(`${api_URL}/candidatures`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+        body: formPayload
+      });
 
-      Alert.alert('Succès', 'Votre candidature a été envoyée !');
+      if (!response.ok) throw new Error('Erreur lors de l’envoi');
+
+      Alert.alert('Succès', 'Candidature envoyée !');
       onClose();
+
     } catch (error) {
-      console.error('Erreur:', error);
-      Alert.alert('Erreur', 'Une erreur est survenue lors de l\'envoi');
+      console.error("Erreur d'envoi :", error);
+      Alert.alert('Erreur', error.message || 'Échec de l’envoi');
     }
   };
 
   return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      onRequestClose={onClose}
-    >
+    <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
       <ScrollView contentContainerStyle={styles.modalContainer}>
         <Text style={styles.modalTitle}>
           Postuler à {offre.titre} chez {offre.entreprise_nom}
@@ -104,28 +145,24 @@ const ApplyFormModal = ({ visible, onClose, offre, userData }) => {
             placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
             value={formData[field]}
             onChangeText={(text) => handleChange(field, text)}
-            editable={field !== 'email'} // Email non modifiable
+            editable={field !== 'email'}
           />
         ))}
 
         <TouchableOpacity onPress={pickCV} style={styles.cvButton}>
           <Text style={styles.cvButtonText}>
-            {formData.cv ? `CV sélectionné: ${formData.cv.name}` : 'Choisir un CV (PDF)'}
+            {formData.cv ? `✅ CV prêt: ${formData.cv.name}` : '📄 Choisir un CV (PDF)'}
           </Text>
+          {formData.cv && (
+            <Text style={styles.fileInfo}>
+              {Math.round(formData.cv.size / 1024)} KB
+            </Text>
+          )}
         </TouchableOpacity>
 
         <View style={styles.buttonContainer}>
-          <Button
-            title="Envoyer la candidature"
-            onPress={handleSubmit}
-            color="#000041"
-          />
-          <Button
-            title="Annuler"
-            onPress={onClose}
-            color="#888"
-            style={styles.cancelButton}
-          />
+          <Button title="Envoyer la candidature" onPress={handleSubmit} color="#000041" />
+          <Button title="Annuler" onPress={onClose} color="#888" />
         </View>
       </ScrollView>
     </Modal>
@@ -164,11 +201,13 @@ const styles = StyleSheet.create({
     color: '#000041',
     fontSize: 16,
   },
+  fileInfo: {
+    marginTop: 5,
+    fontSize: 14,
+    color: '#555',
+  },
   buttonContainer: {
     gap: 10,
-  },
-  cancelButton: {
-    marginTop: 10,
   },
 });
 

@@ -2,10 +2,11 @@ const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/auth');
 const { verifyToken, requireRole } = require('../middlewares/authMiddleware');
+const upload = require('../middlewares/upload');
 const { getUserById } = require('../models/user');
 const offreCtrl = require('../controllers/offreController');
 const favoriController = require('../controllers/favoriController');
-
+const candidatureController = require('../controllers/candidatureController');
 // 🔐 Authentification
 router.post('/register', controller.register);
 router.get('/confirm/:token', controller.confirmEmail);
@@ -42,3 +43,7 @@ router.post('/favoris/toggle', verifyToken, requireRole('etudiant'), favoriContr
 module.exports = router;
 
 //candidature
+router.get('/candidatures/active', verifyToken, requireRole('etudiant'), candidatureController.getActiveApplications);
+router.post('/candidatures', verifyToken, requireRole('etudiant'), upload.single('cv'), candidatureController.postuler);// Ajoutez cette route avec les autres routes de candidature
+router.delete('/candidatures/:idOffre', verifyToken, requireRole('etudiant'), candidatureController.annulerCandidature);
+router.get('/candidatures',  verifyToken, requireRole('etudiant'),candidatureController.mesCandidatures);

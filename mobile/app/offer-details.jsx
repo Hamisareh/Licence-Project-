@@ -20,7 +20,7 @@ const OffreDetails = () => {
   const [userData, setUserData] = useState(null);
   const [showApplyModal, setShowApplyModal] = useState(false);
 
-  const api_URL = 'http://192.168.251.20:5000/api/auth';
+  const api_URL = 'http://192.168.246.20:5000/api/auth';
 
   useEffect(() => {
     const fetchData = async () => {
@@ -54,58 +54,47 @@ const OffreDetails = () => {
   };
 
   const handleApplyPress = async () => {
-    const user = await fetchUserData();
-    if (!user) {
-      Alert.alert('Erreur', 'Vous devez être connecté pour postuler');
-      return;
-    }
-    if (user.role !== 'etudiant') {
-      Alert.alert('Erreur', 'Seuls les étudiants peuvent postuler');
-      return;
-    }
-    setShowApplyModal(true);
-  };
-
-  const handleSubmitApplication = async (formData) => {
     try {
-      const token = await AsyncStorage.getItem('token');
-      const formPayload = new FormData();
+      const user = await fetchUserData();
       
-      // Ajouter les données du formulaire
-      Object.entries(formData).forEach(([key, value]) => {
-        if (key !== 'cv' && value) {
-          formPayload.append(key, value);
-        }
-      });
-      
-      // Ajouter le CV si présent
-      if (formData.cv) {
-        formPayload.append('cv', {
-          uri: formData.cv.uri,
-          name: formData.cv.name,
-          type: 'application/pdf'
-        });
+      if (!user) {
+        Alert.alert('Erreur', 'Vous devez être connecté pour postuler');
+        return;
       }
       
-      // Ajouter l'ID de l'offre
-      formPayload.append('offre_id', offre.id_offre);
-
-      const response = await axios.post(
-        `${api_URL}/candidatures`,
-        formPayload,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            Authorization: `Bearer ${token}`
-          }
-        }
-      );
-
-      Alert.alert('Succès', 'Votre candidature a été envoyée !');
-      setShowApplyModal(false);
+      if (user.role !== 'etudiant') {
+        Alert.alert('Erreur', 'Seuls les étudiants peuvent postuler');
+        return;
+      }
+  
+      const token = await AsyncStorage.getItem('token');
+      console.log("Token:", token); // Debug
+      console.log("URL:", `${api_URL}/candidatures/active`); // Debug
+  
+      const response = await axios.get(`${api_URL}/candidatures/active`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+  
+      console.log("Réponse API:", response.data); // Debug
+  
+      if (response.data.enStage) {
+        Alert.alert('Erreur', 'Vous êtes déjà en stage, vous ne pouvez pas postuler');
+        return;
+      }
+  
+      setShowApplyModal(true);
+      
     } catch (error) {
-      console.error('Erreur:', error);
-      Alert.alert('Erreur', 'Une erreur est survenue lors de l\'envoi');
+      console.error('Détails erreur:', {
+        message: error.message,
+        response: error.response?.data,
+        stack: error.stack
+      });
+      Alert.alert(
+        'Erreur', 
+        error.response?.data?.message || 
+        `Échec de vérification: ${error.message}`
+      );
     }
   };
 
@@ -199,7 +188,6 @@ const OffreDetails = () => {
         onClose={() => setShowApplyModal(false)}
         offre={offre}
         userData={userData}
-        onSubmit={handleSubmitApplication}
       />
     </View>
   );
@@ -215,7 +203,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     padding: 20,
-    paddingBottom: 80 // Espace pour le bouton
+    paddingBottom: 80
   },
   loadingContainer: { 
     flex: 1, 

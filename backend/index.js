@@ -24,7 +24,7 @@ app.use('/api/auth', routes); // toutes les routes commenceront par /api
 
 
 app.use(cors({
-  origin: 'http://192.168.251.20:5000', // Ex : 'http://192.168.251.20:5000' ou 'http://localhost:3000'
+  origin: 'http://192.168.246.20:5000', 
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'], // Assure-toi que l'en-tête 'Authorization' est autorisé
 }));

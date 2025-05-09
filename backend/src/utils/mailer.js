@@ -13,7 +13,7 @@ console.log('EMAIL_USER:', process.env.EMAIL_USER);
 console.log('EMAIL_PASS:', process.env.EMAIL_PASS);
 
 exports.sendVerificationEmail = (to, token, prenom) => {
-    const link = `https://fb97-41-104-136-99.ngrok-free.app/api/auth/confirm/${token}`;
+    const link = `https://2a38-105-235-128-111.ngrok-free.app/api/auth/confirm/${token}`;
 
 
   return transporter.sendMail({

@@ -1,5 +1,5 @@
 
-import '../i18n'; 
+
 
 import { RegisterProvider } from '../context/RegisterContext';
 import { Slot } from 'expo-router';
