@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.8s ease-out forwards;
+}
+
+
+html, body, #root {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  
+  body {
+    background-image: url('/background.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+  }

@@ -1,0 +1,45 @@
+{
+  "expo": {
+    "name": "StageFlowClean",
+    "slug": "StageFlowClean",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "myapp",
+    "userInterfaceStyle": "automatic",
+  
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "usesIcloudStorage": true
+    },
+    "android": {
+      "adaptiveIcon": {
+       
+        "backgroundColor": "#ffffff"
+      },
+      "permissions": ["READ_EXTERNAL_STORAGE", "WRITE_EXTERNAL_STORAGE"]
+    },
+   
+    
+    "web": {
+      "bundler": "metro",
+      "output": "static"
+
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+         
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff"
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
