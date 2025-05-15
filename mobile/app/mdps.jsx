@@ -11,7 +11,7 @@ const ChangePasswordScreen = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const api_URL = 'http://192.168.246.20:5000/api/auth';
+  const api_URL = 'http://192.168.100.30:5000/api/auth';
 
   const handleChangePassword = async () => {
     if (newPassword !== confirmPassword) {

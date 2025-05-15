@@ -13,7 +13,7 @@ console.log('EMAIL_USER:', process.env.EMAIL_USER);
 console.log('EMAIL_PASS:', process.env.EMAIL_PASS);
 
 exports.sendVerificationEmail = (to, token, prenom) => {
-    const link = `http://192.168.246.20:5000/api/auth/confirm/${token}`;
+    const link = `http://192.168.100.30:5000/api/auth/confirm/${token}`;
 
 
   return transporter.sendMail({

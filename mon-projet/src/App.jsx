@@ -1,5 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
+// Pages publiques
 import Accueil from './pages/Accueil';
 import Login from './pages/Login';
 import InscriptionPrincipale from './pages/InscriptionPrincipale';
@@ -9,15 +11,24 @@ import InscriptionEntreprise from './components/InscriptionEntreprise';
 import ForgotPasswordEmail from './pages/ForgotPasswordEmail';
 import ForgotPasswordVerify from './pages/ForgotPasswordVerify';
 
+// Dashboard Chef
+import DashboardChefLayout from "./pages/dashboard/chef/DashboardChefLayout";
+import DashboardChefHome from "./pages/dashboard/chef/DashboardHome";
+//import Candidatures from "./pages/dashboard/chef/Candidatures";
+//import StagiairesChef from "./pages/dashboard/chef/Stagiaires";
+import ProfilChef from "./pages/dashboard/chef/ProfilChef";
+import ChangePasswordChef from "./pages/dashboard/chef/ChangePasswordChef";
+import LogoutChef from "./pages/dashboard/chef/LogoutChef";
 
 function App() {
   return (
     <Router>
       <Routes>
-        {/* صفحة الاستقبال */}
+
+        {/* Page d'accueil */}
         <Route path="/" element={<Accueil />} />
 
-        {/* صفحة تسجيل الدخول */}
+        {/* Page de connexion */}
         <Route
           path="/connexion"
           element={
@@ -30,18 +41,26 @@ function App() {
           }
         />
 
-      <Route path="/mot-de-passe-oublie" element={<ForgotPasswordEmail />} />
-      <Route path="/verification-code" element={<ForgotPasswordVerify />} />
+        {/* Mot de passe oublié */}
+        <Route path="/mot-de-passe-oublie" element={<ForgotPasswordEmail />} />
+        <Route path="/verification-code" element={<ForgotPasswordVerify />} />
 
+        {/* Espace Chef */}
+        <Route path="/chef" element={<DashboardChefLayout />}>
+          <Route index element={<DashboardChefHome />} />
+         {/* <Route path="candidatures" element={<Candidatures />} />*/}
+          {/*<Route path="stagiaires" element={<StagiairesChef />} />*/}
+          <Route path="profil" element={<ProfilChef />} />
+          <Route path="modifier-mot-de-passe" element={<ChangePasswordChef />} />
+          <Route path="logout" element={<LogoutChef />} />
+        </Route>
 
-
-        {/* صفحة الاختيار بين أدوار التسجيل */}
+        {/* Inscriptions */}
         <Route path="/inscription" element={<InscriptionPrincipale />} />
+        <Route path="/inscription/etudiant" element={<InscriptionEtudiant />} />
+        <Route path="/inscription/chef-departement" element={<InscriptionChefDepartement />} />
+        <Route path="/inscription/entreprise" element={<InscriptionEntreprise />} />
 
-        {/* صفحات التسجيل حسب الدور (يمكن تفعيلها لاحقاً) */}
-       <Route path="/inscription/etudiant" element={<InscriptionEtudiant />} />
-          <Route path="/inscription/chef-departement" element={<InscriptionChefDepartement />} />
-        <Route path="/inscription/entreprise" element={<InscriptionEntreprise />} /> 
       </Routes>
     </Router>
   );

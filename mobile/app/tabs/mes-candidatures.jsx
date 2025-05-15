@@ -23,7 +23,7 @@ const MesCandidatures = () => {
   const [candidatures, setCandidatures] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const api_URL = 'http://192.168.246.20:5000/api/auth';
+  const api_URL = 'http://192.168.100.30:5000/api/auth';
 
 const fetchCandidatures = async () => {
   try {
