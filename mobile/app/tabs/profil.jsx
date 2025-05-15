@@ -75,14 +75,31 @@ export default function ProfileScreen() {
       { cancelable: true }
     );
   };
-
+ const handleLogout = () => {
+    Alert.alert(
+      'Déconnexion',
+      'Êtes-vous sûr de vouloir vous déconnecter ?',
+      [
+        {
+          text: 'Annuler',
+          style: 'cancel',
+        },
+        {
+          text: 'Déconnexion',
+          style: 'destructive',
+          onPress: () => router.push('/logout'),
+        },
+      ],
+      { cancelable: true }
+    );
+  };
   const menuItems = [
     { label: 'Mes informations', icon: 'person-outline', path: '../profile-details' },
     { label: 'Mes favoris', icon: 'heart-outline', path: '../favoris' },
     { label: 'Changer le mot de passe', icon: 'key-outline', path: '/mdps' },
     { label: "Conditions d'utilisation", icon: 'document-outline', path: '/terms' },
     { label: 'Mes evaluation', icon: 'star-outline', path: '/evaluation' },
-    { label: 'Se déconnecter', icon: 'exit-outline', onPress: () => router.push('/logout'), danger: true }
+ { label: 'Se déconnecter', icon: 'exit-outline', onPress: handleLogout, danger: true }
   ];
 
   // Fonction pour traduire le rôle

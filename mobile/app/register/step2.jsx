@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useRegister } from '../../context/RegisterContext';
@@ -15,17 +16,33 @@ export default function Step2() {
   const [departement, setDepartement] = useState(registerData.departement || '');
   const [matricule, setMatricule] = useState(registerData.matricule || '');
 
+  const departements = [
+    'Agronomie',
+    'Physique',
+    'SNV',
+    'Biologie',
+    'Mathematiques',
+    'Informatique',
+    'STAPS',
+    'Chimie'
+  ];
+
+  const niveaux = ['L1', 'L2', 'L3', 'M1', 'M2'];
+
   useEffect(() => {
-    // Assure-toi que les données de Step1 sont disponibles dans Step2
     setUniversite(registerData.universite || '');
     setSpecialite(registerData.specialite || '');
     setNiveau(registerData.niveau || '');
     setDepartement(registerData.departement || '');
     setMatricule(registerData.matricule || '');
-
   }, [registerData]);
 
   const handleSubmit = async () => {
+    if (!matricule || !universite || !specialite || !niveau || !departement) {
+      Alert.alert('Erreur', 'Veuillez remplir tous les champs');
+      return;
+    }
+
     try {
       const fullData = {
         ...registerData,
@@ -38,7 +55,7 @@ export default function Step2() {
 
       await registerEtudiant(fullData);
       Alert.alert('Succès', 'Inscription réussie ✅');
-      setRegisterData({}); // Reset register data after successful registration
+      setRegisterData({});
       router.replace('/login');
     } catch (err) {
       Alert.alert('Erreur', err.response?.data?.error || 'Erreur serveur');
@@ -56,47 +73,70 @@ export default function Step2() {
     }));
     router.push('/register/step1');
   };
-  
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Informations académiques</Text>
+      
       <TextInput 
-  style={styles.input} 
-  placeholder="Matricule" 
-  value={matricule} 
-  onChangeText={setMatricule} 
-/>
+        style={styles.input} 
+        placeholder="Matricule" 
+        value={matricule} 
+        onChangeText={setMatricule} 
+      />
+      
       <TextInput 
         style={styles.input} 
         placeholder="Université" 
         value={universite} 
         onChangeText={setUniversite} 
       />
+      
       <TextInput 
         style={styles.input} 
         placeholder="Spécialité" 
         value={specialite} 
         onChangeText={setSpecialite} 
       />
-      <TextInput 
-        style={styles.input} 
-        placeholder="Niveau" 
-        value={niveau} 
-        onChangeText={setNiveau} 
-      />
-      <TextInput 
-        style={styles.input} 
-        placeholder="Département" 
-        value={departement} 
-        onChangeText={setDepartement} 
-      />
 
-      <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+      <View style={styles.pickerContainer}>
+        <Text style={styles.pickerLabel}>Département:</Text>
+        <Picker
+          selectedValue={departement}
+          style={styles.picker}
+          onValueChange={(itemValue) => setDepartement(itemValue)}
+          dropdownIconColor="#000041"
+        >
+          <Picker.Item label="Sélectionnez un département" value="" />
+          {departements.map((dept, index) => (
+            <Picker.Item key={index} label={dept} value={dept} />
+          ))}
+        </Picker>
+      </View>
+
+      <View style={styles.pickerContainer}>
+        <Text style={styles.pickerLabel}>Niveau:</Text>
+        <Picker
+          selectedValue={niveau}
+          style={styles.picker}
+          onValueChange={(itemValue) => setNiveau(itemValue)}
+          dropdownIconColor="#000041"
+        >
+          <Picker.Item label="Sélectionnez un niveau" value="" />
+          {niveaux.map((niv, index) => (
+            <Picker.Item key={index} label={niv} value={niv} />
+          ))}
+        </Picker>
+      </View>
+
+      <TouchableOpacity 
+        style={[styles.button, (!matricule || !universite || !specialite || !niveau || !departement) && styles.buttonDisabled]} 
+        onPress={handleSubmit}
+        disabled={!matricule || !universite || !specialite || !niveau || !departement}
+      >
         <Text style={styles.buttonText}>Valider</Text>
       </TouchableOpacity>
 
-      {/* Retour à Step 1 si l'utilisateur veut revenir et modifier ses informations */}
       <TouchableOpacity style={styles.backButton} onPress={handleBack}>
         <Text style={styles.backText}>← Retour à l'étape précédente</Text>
       </TouchableOpacity>
@@ -105,11 +145,67 @@ export default function Step2() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', padding: 20, backgroundColor: '#fff' },
-  title: { fontSize: 22, textAlign: 'center', marginBottom: 20, fontWeight: 'bold', color: '#000041' },
-  input: { borderWidth: 1, borderColor: '#ccc', borderRadius: 10, padding: 12, marginBottom: 15, backgroundColor: '#f9f9f9', color: '#000' },
-  button: { backgroundColor: '#000041', padding: 14, borderRadius: 10, alignItems: 'center' },
-  buttonText: { color: '#fff', fontWeight: 'bold' },
-  backButton: { marginTop: 10, alignItems: 'center' },
-  backText: { color: '#000041', fontWeight: '600' },
+  container: { 
+    flex: 1, 
+    justifyContent: 'center', 
+    padding: 20, 
+    backgroundColor: '#fff' 
+  },
+  title: { 
+    fontSize: 22, 
+    textAlign: 'center', 
+    marginBottom: 20, 
+    fontWeight: 'bold', 
+    color: '#000041' 
+  },
+  input: { 
+    borderWidth: 1, 
+    borderColor: '#ccc', 
+    borderRadius: 10, 
+    padding: 12, 
+    marginBottom: 15, 
+    backgroundColor: '#f9f9f9', 
+    color: '#000' 
+  },
+  pickerContainer: {
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 10,
+    backgroundColor: '#f9f9f9',
+    overflow: 'hidden',
+  },
+  pickerLabel: {
+    paddingLeft: 12,
+    paddingTop: 8,
+    color: '#666',
+    fontSize: 12,
+  },
+  picker: {
+    height: 50,
+    width: '100%',
+    color: '#000',
+  },
+  button: { 
+    backgroundColor: '#000041', 
+    padding: 14, 
+    borderRadius: 10, 
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  buttonDisabled: {
+    backgroundColor: '#cccccc',
+  },
+  buttonText: { 
+    color: '#fff', 
+    fontWeight: 'bold' 
+  },
+  backButton: { 
+    marginTop: 20, 
+    alignItems: 'center' 
+  },
+  backText: { 
+    color: '#000041', 
+    fontWeight: '600' 
+  },
 });
