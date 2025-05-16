@@ -1,5 +1,5 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   FileText,
@@ -9,8 +9,45 @@ import {
   LogOut,
   Info,
 } from "lucide-react";
+import Swal from "sweetalert2";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 export default function SidebarChef() {
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    const result = await Swal.fire({
+      title: 'Se déconnecter ?',
+      text: "Vous êtes sur le point de vous déconnecter.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Oui, déconnecter',
+      cancelButtonText: 'Annuler',
+      reverseButtons: true,
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const token = localStorage.getItem('token');
+        await axios.post('http://localhost:5000/api/auth/logout', {}, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        localStorage.removeItem('token');
+        toast.success("Déconnexion réussie");
+        navigate("/connexion");
+      } catch (error) {
+        console.error("Erreur lors de la déconnexion :", error);
+        toast.error("Erreur lors de la déconnexion");
+      }
+    }
+  };
+
   const navLinks = [
     {
       to: "/chef",
@@ -42,15 +79,10 @@ export default function SidebarChef() {
       label: "Conditions & Aide",
       icon: <Info size={18} />,
     },
-    {
-      to: "/chef/logout",
-      label: "Déconnexion",
-      icon: <LogOut size={18} />,
-    },
   ];
 
   return (
-    <aside className="w-64 h-screen bg-white shadow-lg rounded-r-3xl px-6 py-8 flex flex-col">
+    <aside className="w-64 h-screen bg-white shadow-lg rounded-r-3xl px-6 py-8 flex flex-col fixed top-0 left-0 z-50">
       {/* Logo */}
       <h1 className="text-3xl font-bold mb-8 select-none cursor-default">
         <span className="text-[#ff7b00]">Stage</span>
@@ -76,9 +108,18 @@ export default function SidebarChef() {
             {label}
           </NavLink>
         ))}
+
+        {/* Bouton déconnexion */}
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-gray-700 hover:bg-[#ff7b00]/20 transition-colors"
+        >
+          <LogOut size={18} />
+          Déconnexion
+        </button>
       </nav>
 
-      {/* Footer (optionnel) */}
+      {/* Footer */}
       <div className="text-xs text-gray-400 text-center mt-6 select-none">
         © {new Date().getFullYear()} StageFlow
       </div>

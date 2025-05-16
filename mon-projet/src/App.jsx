@@ -13,9 +13,9 @@ import ForgotPasswordVerify from './pages/ForgotPasswordVerify';
 
 // Dashboard Chef
 import DashboardChefLayout from "./pages/dashboard/chef/DashboardChefLayout";
-import DashboardChefHome from "./pages/dashboard/chef/DashboardHome";
-//import Candidatures from "./pages/dashboard/chef/Candidatures";
-//import StagiairesChef from "./pages/dashboard/chef/Stagiaires";
+import DashboardHome from "./pages/dashboard/chef/DashboardHome";
+import Candidatures from  "./pages/dashboard/chef/Candidatures";
+import Stagiaires from "./pages/dashboard/chef/Stagiaires";
 import ProfilChef from "./pages/dashboard/chef/ProfilChef";
 import ChangePasswordChef from "./pages/dashboard/chef/ChangePasswordChef";
 import LogoutChef from "./pages/dashboard/chef/LogoutChef";
@@ -47,12 +47,11 @@ function App() {
 
         {/* Espace Chef */}
         <Route path="/chef" element={<DashboardChefLayout />}>
-          <Route index element={<DashboardChefHome />} />
-         {/* <Route path="candidatures" element={<Candidatures />} />*/}
-          {/*<Route path="stagiaires" element={<StagiairesChef />} />*/}
+          <Route path="/chef" element={<DashboardHome />} />
+          <Route path="/chef/candidatures" element={<Candidatures />} />
+          <Route path="/chef/stagiaires" element={<Stagiaires />} />
           <Route path="profil" element={<ProfilChef />} />
           <Route path="modifier-mot-de-passe" element={<ChangePasswordChef />} />
-          <Route path="logout" element={<LogoutChef />} />
         </Route>
 
         {/* Inscriptions */}

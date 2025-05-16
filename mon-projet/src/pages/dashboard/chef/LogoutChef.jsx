@@ -1,36 +1,60 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
-const LogoutChef = () => {
+function LogoutChef() {
   const navigate = useNavigate();
 
   useEffect(() => {
     const logout = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        await axios.post(`${API_URL}/logout`, {}, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        
-        localStorage.removeItem('token');
-        toast.success('Déconnexion réussie');
-        navigate('/connexion');
-      } catch (err) {
-        toast.error('Erreur lors de la déconnexion');
-        navigate('/chef');
+      const result = await Swal.fire({
+        title: 'Déconnexion',
+        text: "Voulez-vous vraiment vous déconnecter ?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Oui',
+        cancelButtonText: 'Non',
+        reverseButtons: true,
+        width: 380,
+        padding: '1.5rem',
+        background: '#fff',
+        color: '#000',
+        confirmButtonColor: '#ff7b00',
+        cancelButtonColor: '#ccc',
+        customClass: {
+          popup: 'rounded-xl shadow',
+          title: 'text-lg font-semibold',
+          confirmButton: 'text-sm px-4 py-2',
+          cancelButton: 'text-sm px-4 py-2',
+        },
+      });
+
+      if (result.isConfirmed) {
+        try {
+          const token = localStorage.getItem('token');
+
+          await axios.post('http://localhost:5000/api/auth/logout', {}, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+          localStorage.removeItem('token');
+          toast.success('Déconnecté avec succès');
+          navigate('/');
+        } catch (error) {
+          console.error('Erreur logout :', error);
+          toast.error('Erreur de déconnexion');
+        }
+      } else {
+        navigate(-1); // Revenir à la page précédente proprement
       }
     };
-    
+
     logout();
   }, [navigate]);
 
-  return (
-    <div className="flex justify-center items-center h-64">
-      <p>Déconnexion en cours...</p>
-    </div>
-  );
-};
+  return null;
+}
 
 export default LogoutChef;
