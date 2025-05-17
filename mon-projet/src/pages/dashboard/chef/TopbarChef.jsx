@@ -1,7 +1,8 @@
 import React from "react";
-import { Bell, Search } from "lucide-react";
+import { Search } from "lucide-react";
+import NotificationDropdown from "./NotificationDropdown";
 
-export default function TopbarChef({ search, setSearch, notificationsCount }) {
+export default function TopbarChef({ search, setSearch }) {
   return (
     <header className="bg-white shadow p-4 mx-8 mt-8 rounded-2xl flex items-center justify-between sticky top-0 z-10">
       {/* Barre de recherche */}
@@ -21,18 +22,7 @@ export default function TopbarChef({ search, setSearch, notificationsCount }) {
 
       {/* Notifications + badge utilisateur */}
       <div className="flex items-center gap-6">
-        <button
-          type="button"
-          className="relative focus:outline-none"
-          aria-label="Notifications"
-        >
-          <Bell size={24} className="text-gray-600 hover:text-primary" />
-          {notificationsCount > 0 && (
-            <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full text-xs px-1.5 font-bold">
-              {notificationsCount}
-            </span>
-          )}
-        </button>
+        <NotificationDropdown />
 
         <div className="bg-secondary text-white rounded-full px-4 py-1 font-semibold select-none">
           Chef de Département
