@@ -24,16 +24,16 @@ const Login = () => {
       // Rediriger selon le rôle
       switch (role) {
         case 'etudiant':
-          navigate('/dashboard/etudiant');
+          navigate('etudiant');
           break;
         case 'entreprise':
-          navigate('/dashboard/entreprise');
+          navigate('entreprise');
           break;
         case 'chef_dept':
           navigate('/chef');
           break;
         case 'admin':
-          navigate('/dashboard/admin');
+          navigate('admin');
           break;
         default:
           navigate('/');
@@ -98,6 +98,12 @@ const Login = () => {
           </button>
         </div>
       </form>
+
+      <p className="text-sm text-center mt-4">
+        <Link to="/mot-de-passe-oublie" className="underline text-white hover:text-orange-300">
+          Mot de passe oublié ?
+        </Link>
+      </p>
 
       <p className="text-sm text-center mt-6">
         Pas encore inscrit ?{' '}

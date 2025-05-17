@@ -15,7 +15,7 @@ const corsOptions = {
   origin: [
     'http://localhost:5173',                 // React en local
     'http://192.168.100.30:5173',            // React sur réseau local
-    'https://2389-197-207-89-196.ngrok-free.app', // ton frontend via ngrok si tu l'utilises
+    'https://aba9-197-202-251-30.ngrok-free.app', // ton frontend via ngrok si tu l'utilises
     'http://localhost:19006',                // Expo mobile (optionnel)
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
