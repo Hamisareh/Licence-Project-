@@ -14,11 +14,11 @@ const PORT = process.env.PORT || 5000;
 const corsOptions = {
   origin: [
     'http://localhost:5173',                 // React en local
-    'http://192.168.100.30:5173',            // React sur réseau local
-    'https://aba9-197-202-251-30.ngrok-free.app', // ton frontend via ngrok si tu l'utilises
+    'http://192.168.246.20:5173',            // React sur réseau local
+    'https://a2df-105-235-130-110.ngrok-free.app', // ton frontend via ngrok si tu l'utilises
     'http://localhost:19006',                // Expo mobile (optionnel)
   ],
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
   credentials: true,
 };
 

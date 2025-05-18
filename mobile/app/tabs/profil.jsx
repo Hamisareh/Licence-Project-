@@ -10,7 +10,7 @@ export default function ProfileScreen() {
   const [image, setImage] = useState(null);
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const api_URL = 'http://192.168.100.30:5000/api/auth';
+  const api_URL = 'http://192.168.246.20:5000/api/auth';
 
   useEffect(() => {
     // Récupérer les données de l'utilisateur

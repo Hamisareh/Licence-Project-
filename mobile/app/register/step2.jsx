@@ -17,12 +17,12 @@ export default function Step2() {
   const [matricule, setMatricule] = useState(registerData.matricule || '');
 
   const departements = [
-    'Agronomie',
-    'Physique',
+       'Informatique',
+       'Mathematiques',
+       'Physique',
+       'Agronomie',
     'SNV',
     'Biologie',
-    'Mathematiques',
-    'Informatique',
     'STAPS',
     'Chimie'
   ];
@@ -92,12 +92,6 @@ export default function Step2() {
         onChangeText={setUniversite} 
       />
       
-      <TextInput 
-        style={styles.input} 
-        placeholder="Spécialité" 
-        value={specialite} 
-        onChangeText={setSpecialite} 
-      />
 
       <View style={styles.pickerContainer}>
         <Text style={styles.pickerLabel}>Département:</Text>
@@ -128,7 +122,12 @@ export default function Step2() {
           ))}
         </Picker>
       </View>
-
+      <TextInput 
+        style={styles.input} 
+        placeholder="Spécialité" 
+        value={specialite} 
+        onChangeText={setSpecialite} 
+      />
       <TouchableOpacity 
         style={[styles.button, (!matricule || !universite || !specialite || !niveau || !departement) && styles.buttonDisabled]} 
         onPress={handleSubmit}

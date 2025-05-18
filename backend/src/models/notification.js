@@ -29,10 +29,12 @@ const Notification = {
   },
 
 markAsRead: async (notificationId) => {
+  console.log("🔄 Mise à jour BDD pour notif:", notificationId);
   const [result] = await db.query(
     'UPDATE Notification SET lu = 1 WHERE id_notif = ?',
     [notificationId]
   );
+  console.log("✅ Résultat update:", result);
   return result;
 }
 };

@@ -28,13 +28,13 @@ exports.getUserNotifications = async (req, res) => {
 };
 
 exports.markAsRead = async (req, res) => {
+  console.log("💡 Requête reçue pour notif ID:", req.params.id); // Debug
   try {
-    await Notification.markAsRead(req.params.id);
+    const result = await Notification.markAsRead(req.params.id);
+    console.log("📝 Résultat BDD:", result); // Debug
     res.json({ success: true });
   } catch (error) {
-    res.status(500).json({ 
-      success: false,
-      message: "Erreur serveur" 
-    });
+    console.error("🔥 Erreur:", error); // Debug amélioré
+    res.status(500).json({ success: false, message: error.message });
   }
 };

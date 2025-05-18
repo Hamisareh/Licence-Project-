@@ -3,8 +3,22 @@ import { View, Text, TextInput, StyleSheet, ScrollView, Alert, TouchableOpacity 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { Picker } from '@react-native-picker/picker';
 
 export default function ProfileDetails() {
+  const departements = [
+    'Informatique',
+    'Mathematiques',
+    'Physique',
+    'Agronomie',
+    'SNV',
+    'Biologie',
+    'STAPS',
+    'Chimie'
+  ];
+
+  const niveaux = ['L1', 'L2', 'L3', 'M1', 'M2'];
+
   const [form, setForm] = useState({
     nom: '',
     prenom: '',
@@ -16,11 +30,12 @@ export default function ProfileDetails() {
     matricule: '',
   });
 
+  // ... (le reste de vos useEffect et fonctions existants restent inchangés)
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const token = await AsyncStorage.getItem('token');
-        const res = await fetch('http://192.168.100.30:5000/api/auth/me', {
+        const res = await fetch('http://192.168.246.20:5000/api/auth/me', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -73,7 +88,7 @@ export default function ProfileDetails() {
         return;
       }
 
-      const res = await fetch('http://192.168.100.30:5000/api/auth/me', {
+      const res = await fetch('http://192.168.246.20:5000/api/auth/me', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -96,16 +111,13 @@ export default function ProfileDetails() {
 
   return (
     <View style={styles.mainContainer}>
-     <View style={styles.header}>
+      <View style={styles.header}>
         <TouchableOpacity onPress={() => router.push('/tabs/profil')} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color="#000041" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Mes informations</Text>
       </View>
 
-    
-
-      {/* Formulaire */}
       <ScrollView contentContainerStyle={styles.formContainer}>
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Informations Personnelles</Text>
@@ -125,18 +137,62 @@ export default function ProfileDetails() {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Informations Académiques</Text>
-          {['universite', 'departement', 'specialite', 'niveau'].map((key) => (
-            <View key={key} style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>
-                {key.charAt(0).toUpperCase() + key.slice(1)}
-              </Text>
-              <TextInput
-                style={styles.input}
-                value={form[key]}
-                onChangeText={(text) => handleChange(key, text)}
-              />
+          
+          {/* Champ Université */}
+          <View style={styles.inputContainer}>
+            <Text style={styles.inputLabel}>Universite</Text>
+            <TextInput
+              style={styles.input}
+              value={form.universite}
+              onChangeText={(text) => handleChange('universite', text)}
+            />
+          </View>
+
+          {/* Sélecteur de Département */}
+          <View style={styles.inputContainer}>
+            <Text style={styles.inputLabel}>Departement</Text>
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={form.departement}
+                onValueChange={(itemValue) => handleChange('departement', itemValue)}
+                style={styles.picker}
+                dropdownIconColor="#000041"
+              >
+                <Picker.Item label="Sélectionnez un département" value="" />
+                {departements.map((dept) => (
+                  <Picker.Item key={dept} label={dept} value={dept} />
+                ))}
+              </Picker>
             </View>
-          ))}
+          </View>
+
+          {/* Champ Spécialité */}
+          <View style={styles.inputContainer}>
+            <Text style={styles.inputLabel}>Specialite</Text>
+            <TextInput
+              style={styles.input}
+              value={form.specialite}
+              onChangeText={(text) => handleChange('specialite', text)}
+            />
+          </View>
+
+          {/* Sélecteur de Niveau */}
+          <View style={styles.inputContainer}>
+            <Text style={styles.inputLabel}>Niveau</Text>
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={form.niveau}
+                onValueChange={(itemValue) => handleChange('niveau', itemValue)}
+                style={styles.picker}
+                dropdownIconColor="#000041"
+              >
+                <Picker.Item label="Sélectionnez un niveau" value="" />
+                {niveaux.map((niv) => (
+                  <Picker.Item key={niv} label={niv} value={niv} />
+                ))}
+              </Picker>
+            </View>
+          </View>
         </View>
 
         <TouchableOpacity 
@@ -152,6 +208,7 @@ export default function ProfileDetails() {
 }
 
 const styles = StyleSheet.create({
+  // ... (tous vos styles existants restent inchangés)
   mainContainer: {
     flex: 1,
     backgroundColor: 'white',
@@ -253,5 +310,18 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
     marginRight: 10,
+  },
+  // Ajoutez ces nouveaux styles pour les Picker
+  pickerContainer: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 10,
+    backgroundColor: '#f9f9f9',
+    overflow: 'hidden',
+  },
+  picker: {
+    height: 50,
+    width: '100%',
+    color: '#333',
   },
 });

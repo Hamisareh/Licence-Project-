@@ -5,7 +5,6 @@ import NotificationDropdown from "./NotificationDropdown";
 export default function TopbarChef({ search, setSearch }) {
   return (
     <header className="bg-white shadow p-4 mx-8 mt-8 rounded-2xl flex items-center justify-between sticky top-0 z-10">
-      {/* Barre de recherche */}
       <div className="relative max-w-md w-full">
         <input
           type="text"
@@ -20,7 +19,6 @@ export default function TopbarChef({ search, setSearch }) {
         />
       </div>
 
-      {/* Notifications + badge utilisateur */}
       <div className="flex items-center gap-6">
         <NotificationDropdown />
 

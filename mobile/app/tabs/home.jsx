@@ -24,7 +24,7 @@ const HomeScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const pulseAnim = useRef(new Animated.Value(1)).current;
-  const api_URL = 'http://192.168.100.30:5000/api/auth';
+  const api_URL = 'http://192.168.246.20:5000/api/auth';
 
   const fetchData = async () => {
     try {
