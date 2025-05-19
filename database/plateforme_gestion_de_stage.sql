@@ -65,7 +65,6 @@ CREATE TABLE Candidature (
     etat_cand VARCHAR(50) DEFAULT 'en attente',        
     etat_sta VARCHAR(50) DEFAULT NULL,                
     cv VARCHAR(255),                                  
-    statut_validation_chef VARCHAR(50) DEFAULT NULL,  
     PRIMARY KEY (candidat, offre),
     FOREIGN KEY (candidat) REFERENCES Etudiant(id_etud) ON DELETE CASCADE,
     FOREIGN KEY (offre) REFERENCES offrestage(id_offre) ON DELETE CASCADE
@@ -113,7 +112,6 @@ CREATE TABLE Document (
   id_doc INT AUTO_INCREMENT PRIMARY KEY,
   exped_doc INT NOT NULL,
   destin_doc INT NOT NULL,
-  nom VARCHAR(255) NOT NULL,
   type VARCHAR(100) NOT NULL,
   chemin VARCHAR(255) NOT NULL,
   date_envoi DATETIME DEFAULT CURRENT_TIMESTAMP,

@@ -15,7 +15,7 @@ export default function Offresdetails() {
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
-  const api_URL = 'http://192.168.246.20:5000/api/auth';
+  const api_URL = 'http://192.168.90.20:5000/api/auth';
   const fileInputRef = useRef(null);
 
   const { from, etat } = location.state || {};

@@ -1,8 +1,6 @@
-// backend/src/middlewares/upload.js
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-
 // Créer le dossier tmp/uploads s'il n'existe pas
 const uploadDir = path.join(__dirname, '../../tmp/uploads');
 if (!fs.existsSync(uploadDir)) {

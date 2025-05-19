@@ -28,13 +28,13 @@ exports.getUserNotifications = async (req, res) => {
 };
 
 exports.markAsRead = async (req, res) => {
-  console.log("💡 Requête reçue pour notif ID:", req.params.id); // Debug
+  console.log("💡 Requête reçue pour notif ID:", req.params.id);
   try {
     const result = await Notification.markAsRead(req.params.id);
-    console.log("📝 Résultat BDD:", result); // Debug
+    console.log("📝 Résultat BDD:", result);
     res.json({ success: true });
   } catch (error) {
-    console.error("🔥 Erreur:", error); // Debug amélioré
+    console.error("🔥 Erreur:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 };

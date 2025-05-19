@@ -28,7 +28,7 @@ const ApplyFormModal = ({ visible, onClose, offre, userData }) => {
     cv: null,
   });
   const [loading, setLoading] = useState(false);
-  const api_URL = 'http://192.168.246.20:5000/api/auth';
+  const api_URL = 'http://192.168.90.20:5000/api/auth';
 
   useEffect(() => {
     if (userData) {

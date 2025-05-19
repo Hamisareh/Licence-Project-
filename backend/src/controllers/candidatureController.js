@@ -111,7 +111,7 @@ exports.mesCandidatures = async (req, res) => {
         titre: c.titre,
         entreprise: c.entreprise_nom,
         date: c.date_cand ? new Date(c.date_cand).toISOString() : null,
-        etat: c.etat_cand || 'en attente',
+        etat: c.etat_cand || 'en_attente',
         accepte: c.etat_sta === 'en cours',
         cvUrl: c.cv ? `${process.env.BASE_URL || ''}${c.cv}` : null,
         details: {
@@ -156,7 +156,7 @@ exports.annulerCandidature = async (req, res) => {
       // Vérifier que la candidature appartient à l'utilisateur
       const [candidature] = await db.query(
         `SELECT * FROM Candidature 
-         WHERE candidat = ? AND offre = ? AND etat_cand = 'en attente'`,
+         WHERE candidat = ? AND offre = ? AND etat_cand = 'en_attente'`,
         [req.user.id, idOffre]
       );
   
@@ -207,7 +207,7 @@ exports.annulerCandidature = async (req, res) => {
       details: {
         contact: s.entreprise_email,
         periode: `${new Date(s.date_debut).toLocaleDateString()} - ${new Date(s.date_fin).toLocaleDateString()}`,
-        
+        validation_chef: s.statut_validation_chef
       }
     }));
 
@@ -251,4 +251,53 @@ exports.checkApplication = async (req, res) => {
     });
   }
 };
+
+
+// controllers/candidatureController.js
+exports.getCandidaturesForChef = async (req, res) => {
+  try {
+    // Récupérer le département du chef
+    const [chef] = await db.query(
+      `SELECT departement FROM ChefDepartement WHERE id_chef = ?`,
+      [req.user.id]
+    );
+
+    if (!chef || !chef[0]) {
+      return res.status(403).json({ 
+        success: false, 
+        message: "Accès refusé - département non trouvé" 
+      });
+    }
+
+    // Récupérer les candidatures des étudiants du même département
+    const [candidatures] = await db.query(`
+  SELECT 
+    c.*, 
+    u.nom, u.prenom, 
+    e.matricule,
+    o.titre, o.domaine, o.duree, o.date_debut, o.date_fin, 
+    o.missions, o.descr, o.competencesRequises,
+    ent.nom AS entreprise_nom,
+    ent.email AS entreprise_email,
+    entp.secteur AS entreprise_secteur,
+    entp.tel AS entreprise_tel,
+    entp.adr AS entreprise_adr
+  FROM Candidature c
+  JOIN Etudiant e ON c.candidat = e.id_etud
+  JOIN Utilisateur u ON e.id_etud = u.id
+  JOIN offrestage o ON c.offre = o.id_offre
+  JOIN Utilisateur ent ON o.entr = ent.id
+  LEFT JOIN Entreprise entp ON ent.id = entp.id_entr
+  WHERE e.departement = ?`,
+  [chef[0].departement]
+);
+
+    res.json({ success: true, data: candidatures });
+  } catch (error) {
+    console.error("Erreur:", error);
+    res.status(500).json({ success: false, message: "Erreur serveur" });
+  }
+};
+// controllers/candidatureController.js
+
 // ... (autres méthodes pour entreprises)

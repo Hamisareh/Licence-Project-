@@ -17,8 +17,8 @@ export default function Listedesoffres() {
     try {
       const token = localStorage.getItem('token');
       const [offresRes, favorisRes] = await Promise.all([
-        axios.get('http://192.168.246.20:5000/api/auth/offres'),
-        axios.get('http://192.168.246.20:5000/api/auth/favoris', {
+        axios.get('http://192.168.90.20:5000/api/auth/offres'),
+        axios.get('http://192.168.90.20:5000/api/auth/favoris', {
           headers: { Authorization: `Bearer ${token}` }
         })
       ]);
@@ -38,7 +38,7 @@ export default function Listedesoffres() {
       const isFavori = favoris.includes(offre.id_offre);
       
       const response = await axios.post(
-        'http://192.168.246.20:5000/api/auth/favoris/toggle',
+        'http://192.168.90.20:5000/api/auth/favoris/toggle',
         { offre_fav: offre.id_offre },
         { headers: { Authorization: `Bearer ${token}` } }
       );

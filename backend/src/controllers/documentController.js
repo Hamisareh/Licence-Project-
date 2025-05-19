@@ -1,5 +1,6 @@
 const Document = require('../models/document');
 const Notification = require('../models/notification');
+const path = require('path');
 const fs = require('fs');
 const db = require('../config/db');
 exports.uploadRapport = async (req, res) => {
@@ -120,4 +121,92 @@ exports.uploadRapport = async (req, res) => {
     });
   }
 
+};
+
+exports.uploadConvention = async (req, res) => {
+  try {
+    // Validation des données
+    if (!req.file || !req.body.candidatId || !req.body.offreId) {
+      if (req.file) fs.unlinkSync(req.file.path);
+      return res.status(400).json({ 
+        success: false,
+        message: "Fichier et IDs requis" 
+      });
+    }
+
+    const { candidatId, offreId } = req.body;
+    const file = req.file;
+
+    // 1. Récupérer l'entreprise associée à l'offre
+    const [[offre]] = await db.query(
+      `SELECT entr FROM offrestage WHERE id_offre = ?`,
+      [offreId]
+    );
+
+    if (!offre) {
+      fs.unlinkSync(file.path);
+      return res.status(404).json({ 
+        success: false,
+        message: "Offre non trouvée" 
+      });
+    }
+
+    // 2. Préparer le stockage du fichier
+    const uploadDir = path.join(__dirname, '../../tmp/uploads');
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+
+    const newFilename = `conv_${offreId}_${Date.now()}${path.extname(file.originalname)}`;
+    const destPath = path.join(uploadDir, newFilename);
+    fs.renameSync(file.path, destPath);
+
+    // 3. Enregistrer dans la table Document
+    await db.query(
+      `INSERT INTO Document 
+       (exped_doc, destin_doc, nom, type, chemin)
+       VALUES (?, ?, ?, ?, ?)`,
+      [
+        req.user.id,    // ID du chef
+        offre.entr,     // ID de l'entreprise
+        file.originalname,
+        'convention',
+        `/uploads/${newFilename}`
+      ]
+    );
+
+    // 4. Mettre à jour la candidature
+   await db.query(
+      `UPDATE Candidature 
+       SET etat_sta = 'en cours'
+       WHERE candidat = ? AND offre = ?`,
+      [candidatId, offreId]
+    );
+    // 5. Créer une notification pour l'entreprise
+    await db.query(
+      `INSERT INTO Notification
+       (expediteur, destinataire, msg, type_notif)
+       VALUES (?, ?, ?, ?)`,
+      [
+        req.user.id,
+        offre.entr,
+        'Une nouvelle convention de stage a été validée',
+        'convention_validee'
+      ]
+    );
+
+    res.json({ 
+      success: true,
+      message: "Convention enregistrée avec succès",
+      filePath: `/uploads/${newFilename}`
+    });
+
+  } catch (error) {
+    console.error("Erreur complète:", error);
+    if (req.file?.path) fs.unlinkSync(req.file.path);
+    res.status(500).json({ 
+      success: false,
+      message: error.message || "Erreur serveur"
+    });
+  }
 };

@@ -10,7 +10,8 @@ const candidatureController = require('../controllers/candidatureController');
 const evaluationCtrl = require('../controllers/evaluationController');
 const documentCtrl = require('../controllers/documentController');
 const notificationController = require('../controllers/notificationController');
-
+const offreController = require('../controllers/offreController');
+const documentController = require('../controllers/documentController'); // Ajoutez cette ligne
 // 🔐 Authentification
 router.post('/register', controller.register);
 router.get('/confirm/:token', controller.confirmEmail);
@@ -75,4 +76,18 @@ router.post('/rapports', verifyToken,requireRole('etudiant'),upload.single('rapp
 
 //notification
 router.get('/notification', verifyToken, notificationController.getUserNotifications);
-router.patch('/notification/:id/read',verifyToken, notificationController.markAsRead);
+router.patch('/notification/:id/read', verifyToken, notificationController.markAsRead);
+// Routes Candidatures pour Chef de Département
+router.get('/candidatures/chef', verifyToken, requireRole('chef_dept'), candidatureController.getCandidaturesForChef);
+// Route pour l'upload de convention (UNE SEULE DÉCLARATION)
+router.post(
+  '/conventions/upload',
+  verifyToken,
+  requireRole('chef_dept'),
+  upload.single('convention'), // Même middleware multer
+  documentController.uploadConvention
+);
+// Routes des offres
+router.get('/offres', offreController.getOffresLight);
+router.get('/offres/:id', offreController.getOffreById);
+

@@ -14,10 +14,11 @@ import ForgotPasswordVerify from './pages/ForgotPasswordVerify';
 // Dashboard Chef
 import DashboardChefLayout from "./pages/dashboard/chef/DashboardChefLayout";
 import DashboardHome from "./pages/dashboard/chef/DashboardHome";
-import Candidatures from  "./pages/dashboard/chef/Candidatures";
+import CandidaturesChef from "./pages/dashboard/chef/CandidaturesChef";
 import Stagiaires from "./pages/dashboard/chef/Stagiaires";
 import ProfilChef from "./pages/dashboard/chef/ProfilChef";
 import ChangePasswordChef from "./pages/dashboard/chef/ChangePasswordChef";
+import LogoutChef from "./pages/dashboard/chef/LogoutChef";
 
 
 
@@ -58,10 +59,10 @@ function App() {
         <Route path="/mot-de-passe-oublie" element={<ForgotPasswordEmail />} />
         <Route path="/verification-code" element={<ForgotPasswordVerify />} />
 
-        {/* Espace Chef */}
+       {/* Espace Chef */}
         <Route path="/chef" element={<DashboardChefLayout />}>
-          <Route index element={<DashboardHome />} />
-          <Route path="candidatures" element={<Candidatures />} />
+          <Route path="/chef" element={<DashboardHome />} />
+          <Route path="candidatures" element={<CandidaturesChef />} />
           <Route path="stagiaires" element={<Stagiaires />} />
           <Route path="profil" element={<ProfilChef />} />
           <Route path="modifier-mot-de-passe" element={<ChangePasswordChef />} />
