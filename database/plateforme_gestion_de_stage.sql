@@ -62,7 +62,7 @@ CREATE TABLE Candidature (
     candidat INT,
     offre INT,
     date_cand DATE NOT NULL,
-    etat_cand VARCHAR(50) DEFAULT 'en_attente',        
+    etat_cand VARCHAR(50) DEFAULT 'en attente',        
     etat_sta VARCHAR(50) DEFAULT NULL,                
     cv VARCHAR(255),                                  
     statut_validation_chef VARCHAR(50) DEFAULT NULL,  

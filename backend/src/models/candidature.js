@@ -4,7 +4,7 @@ const Candidature = {
   create: async ({ candidat, offre, cv }) => {
     const [result] = await db.query(
       `INSERT INTO Candidature (candidat, offre, date_cand, etat_cand, cv) 
-       VALUES (?, ?, NOW(), 'en_attente', ?)`,
+       VALUES (?, ?, NOW(), 'en attente', ?)`,
       [candidat, offre, cv]
     );
     return result;
@@ -17,6 +17,7 @@ const Candidature = {
     );
     return rows.length > 0;
   },
+
 getActiveApplications: async (candidat) => {
   const [rows] = await db.query(
     `SELECT c.* 
@@ -78,7 +79,6 @@ getActiveApplications: async (candidat) => {
       JOIN Entreprise ent ON o.entr = ent.id_entr
       JOIN Utilisateur u ON ent.id_entr = u.id
       WHERE c.candidat = ? 
-      AND c.statut_validation_chef = 'accepte'
       AND c.etat_cand = 'accepte'
       AND c.etat_sta IS NOT NULL`,
       [candidatId]

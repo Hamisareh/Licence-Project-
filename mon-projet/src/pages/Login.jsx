@@ -24,7 +24,7 @@ const Login = () => {
       // Rediriger selon le rôle
       switch (role) {
         case 'etudiant':
-          navigate('etudiant');
+          navigate('/etudiant');
           break;
         case 'entreprise':
           navigate('entreprise');

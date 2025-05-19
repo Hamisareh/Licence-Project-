@@ -122,7 +122,7 @@ const fetchCandidatures = async () => {
 
       {filtreVisible && (
         <View style={styles.filtreContainer}>
-          {['', 'en_attente', 'accepte', 'refuse'].map((etat) => (
+          {['', 'en attente', 'accepte', 'refuse'].map((etat) => (
             <TouchableOpacity
               key={etat}
               style={[
@@ -135,7 +135,7 @@ const fetchCandidatures = async () => {
                 styles.filtreText,
                 etat === etatFiltre && { color: '#fff' },
               ]}>
-                {etat === '' ? 'Tous' : etat === 'en_attente' ? 'En attente' : etat === 'accepte' ? 'Acceptée' : 'Refusée'}
+                {etat === '' ? 'Tous' : etat === 'en attente' ? 'En attente' : etat === 'accepte' ? 'Acceptée' : 'Refusée'}
               </Text>
             </TouchableOpacity>
           ))}
@@ -162,7 +162,7 @@ const fetchCandidatures = async () => {
           >
             <View style={styles.cardHeader}>
               <Text style={styles.title}>{item.titre}</Text>
-              {item.etat === 'en_attente' && (
+              {item.etat === 'en attente' && (
                 <TouchableOpacity
                   onPress={() => annulerCandidature(item.id)}
                   style={styles.annulerButton}
@@ -177,12 +177,12 @@ const fetchCandidatures = async () => {
             <Text
               style={[
                 styles.tag,
-                item.etat === 'en_attente' && { backgroundColor: '#ffc10733' },
+                item.etat === 'en attente' && { backgroundColor: '#ffc10733' },
                 item.etat === 'accepte' && { backgroundColor: '#28a74533' },
                 item.etat === 'refuse' && { backgroundColor: '#dc354533' },
               ]}
             >
-              {item.etat === 'en_attente' ? 'En attente' : item.etat === 'accepte' ? 'Acceptée' : 'Refusée'}
+              {item.etat === 'en attente' ? 'En attente' : item.etat === 'accepte' ? 'Acceptée' : 'Refusée'}
             </Text>
           </TouchableOpacity>
         )}

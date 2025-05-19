@@ -111,7 +111,7 @@ exports.mesCandidatures = async (req, res) => {
         titre: c.titre,
         entreprise: c.entreprise_nom,
         date: c.date_cand ? new Date(c.date_cand).toISOString() : null,
-        etat: c.etat_cand || 'en_attente',
+        etat: c.etat_cand || 'en attente',
         accepte: c.etat_sta === 'en cours',
         cvUrl: c.cv ? `${process.env.BASE_URL || ''}${c.cv}` : null,
         details: {
@@ -156,7 +156,7 @@ exports.annulerCandidature = async (req, res) => {
       // Vérifier que la candidature appartient à l'utilisateur
       const [candidature] = await db.query(
         `SELECT * FROM Candidature 
-         WHERE candidat = ? AND offre = ? AND etat_cand = 'en_attente'`,
+         WHERE candidat = ? AND offre = ? AND etat_cand = 'en attente'`,
         [req.user.id, idOffre]
       );
   
@@ -207,7 +207,7 @@ exports.annulerCandidature = async (req, res) => {
       details: {
         contact: s.entreprise_email,
         periode: `${new Date(s.date_debut).toLocaleDateString()} - ${new Date(s.date_fin).toLocaleDateString()}`,
-        validation_chef: s.statut_validation_chef
+        
       }
     }));
 

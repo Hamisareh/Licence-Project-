@@ -26,31 +26,29 @@ const MesStages = () => {
   const [refreshing, setRefreshing] = useState(false);
   const api_URL = 'http://192.168.246.20:5000/api/auth';
 
-  const fetchStages = async () => {
-    try {
-      const token = await AsyncStorage.getItem('token');
-      const response = await axios.get(`${api_URL}/etudiant/stages`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+ const fetchStages = async () => {
+  try {
+    const token = await AsyncStorage.getItem('token');
+    const response = await axios.get(`${api_URL}/etudiant/stages`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
 
-      if (response.data.success) {
-        const validStages = response.data.data.filter(stage => 
-          stage.details.validation_chef === 'accepte'
-        );
-        setStages(validStages);
-      }
-    } catch (error) {
-      console.error('Erreur:', error);
-      Alert.alert('Erreur', 'Impossible de charger les stages validés');
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
+    if (response.data.success) {
+      // On récupère tous les stages sans filtrer par validation_chef
+      setStages(response.data.data);
     }
-  };
+  } catch (error) {
+    console.error('Erreur:', error);
+    Alert.alert('Erreur', 'Impossible de charger les stages');
+  } finally {
+    setLoading(false);
+    setRefreshing(false);
+  }
+};
 
-  useEffect(() => {
-    fetchStages();
-  }, []);
+useEffect(() => {
+  fetchStages();
+}, []);
 
   const onRefresh = () => {
     setRefreshing(true);
