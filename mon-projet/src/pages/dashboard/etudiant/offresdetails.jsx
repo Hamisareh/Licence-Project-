@@ -320,7 +320,7 @@ export default function Offresdetails() {
           onClose={() => setShowApplyModal(false)}
           onSuccess={() => {
             toast.success('Candidature envoyée avec succès!');
-            navigate('/etudiant/mescandidatures');
+            navigate('/etudiant/mes-candidatures');
           }}
         />
       )}

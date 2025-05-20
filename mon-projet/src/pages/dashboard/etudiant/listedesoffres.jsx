@@ -66,12 +66,15 @@ export default function Listedesoffres() {
 
   return (
     <div className="p-6">
-      {/* Liste des offres seulement */}
       {offres.length > 0 ? (
         <div className="grid gap-6">
           {offres.map((offre) => (
             <div key={offre.id_offre} className="bg-white rounded-xl shadow-md p-6 relative">
-              <Link to={`/etudiant/offresdetails/${offre.id_offre}`} className="block">
+              <Link 
+                to={`/etudiant/offresdetails/${offre.id_offre}`}
+                state={{ from: 'mes-candidatures' }}
+                className="block"
+              >
                 <h2 className="text-xl font-bold text-[#000041] mb-2">{offre.titre}</h2>
                 <p className="text-gray-600 mb-1">
                   <span className="font-semibold">Entreprise:</span> {offre.entreprise_nom || 'Non spécifiée'}

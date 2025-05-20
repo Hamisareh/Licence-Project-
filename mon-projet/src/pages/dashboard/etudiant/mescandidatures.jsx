@@ -71,7 +71,7 @@ const MesCandidatures = () => {
 
   const handlePress = (item) => {
     navigate(`/etudiant/offresdetails/${item.id}`, { 
-    state: { from: 'mescandidatures' } 
+    state: { from: 'mes-candidatures' } 
 });
   };
 
