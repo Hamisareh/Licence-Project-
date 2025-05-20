@@ -336,7 +336,7 @@ exports.getCandidaturesForChef = async (req, res) => {
   JOIN offrestage o ON c.offre = o.id_offre
   JOIN Utilisateur ent ON o.entr = ent.id
   LEFT JOIN Entreprise entp ON ent.id = entp.id_entr
-  WHERE e.departement = ?`,
+  WHERE e.departement = ? AND etat_cand='accepte'`,
   [chef[0].departement]
 );
 
