@@ -15,7 +15,7 @@ const CandidaturesChef = () => {
   const fetchData = async () => {
     try {
       const res = await axios.get(
-        "http://192.168.90.20:5000/api/auth/candidatures/chef",
+        "http://192.168.219.93:5000/api/auth/candidatures/chef",
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -67,7 +67,7 @@ const openModalWithOffre = (candidature) => {
     formData.append("offreId", selectedCandidate.offre.toString());
 
     const response = await axios.post(
-      "http://192.168.90.20:5000/api/auth/conventions/upload",
+      "http://192.168.219.93:5000/api/auth/conventions/upload",
       formData,
       {
         headers: {

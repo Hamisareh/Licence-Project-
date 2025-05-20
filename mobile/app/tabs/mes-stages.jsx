@@ -24,7 +24,7 @@ const MesStages = () => {
   const [stages, setStages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const api_URL = 'http://192.168.90.20:5000/api/auth';
+  const api_URL = 'http://192.168.219.93:5000/api/auth';
 
  const fetchStages = async () => {
   try {
@@ -64,7 +64,7 @@ useEffect(() => {
   const getEtatColor = (etat) => {
     switch(etat) {
       case 'en cours': return '#28a74533';
-      case 'terminé': return '#6c757d';
+      case 'termine': return '#6c757d';
       case 'abandonné': return '#dc3545';
       default: return '#000041';
     }
@@ -101,7 +101,7 @@ useEffect(() => {
       {/* Filtres */}
       {filtreVisible && (
         <View style={styles.filtreContainer}>
-          {['', 'en cours', 'terminé', 'abandonné'].map((etat) => (
+          {['', 'en cours', 'termine', 'abandonné'].map((etat) => (
             <TouchableOpacity
               key={etat}
               style={[

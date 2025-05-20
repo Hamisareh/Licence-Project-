@@ -68,7 +68,7 @@ export default function ApplyFormModal({ offre, userData, onClose }) {
       formPayload.append('cv', formData.cv);
       formPayload.append('offre_id', offre.id_offre);
 
-      const response = await axios.post('http://192.168.90.20:5000/api/auth/candidatures', formPayload, {
+      const response = await axios.post('http://192.168.219.93:5000/api/auth/candidatures', formPayload, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'multipart/form-data',

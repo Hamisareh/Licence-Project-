@@ -117,7 +117,7 @@ const OffreDetails = () => {
         type: file.mimeType
       });
       formData.append('stageId', id);
-      const response = await axios.post(`${api_URL}/rapports`, formData, {
+      const response = await axios.post(`${api_URL}/rapport`, formData, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'multipart/form-data'

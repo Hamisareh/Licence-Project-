@@ -72,7 +72,7 @@ router.put('/change-password', verifyToken, controller.changePassword);
 router.get('/etudiant/evaluations',verifyToken,requireRole('etudiant'),evaluationCtrl.getStudentEvaluations);
 
 // Envoyer un rapport
-router.post('/rapports', verifyToken,requireRole('etudiant'),upload.single('rapport'),documentCtrl.uploadRapport);
+router.post('/rapport', verifyToken,requireRole('etudiant'),upload.single('rapport'),documentCtrl.uploadRapport);
 
 //notification
 router.get('/notification', verifyToken, notificationController.getUserNotifications);

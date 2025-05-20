@@ -9,7 +9,7 @@ const Messtages = () => {
   const [stages, setStages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const api_URL = 'http://192.168.90.20:5000/api/auth';
+  const api_URL = 'http://192.168.219.93:5000/api/auth';
 
   const fetchStages = async () => {
     try {
@@ -51,7 +51,7 @@ const Messtages = () => {
   const getEtatColor = (etat) => {
     switch(etat) {
       case 'en cours': return 'bg-green-100 text-green-800';
-      case 'terminé': return 'bg-gray-100 text-gray-800';
+      case 'termine': return 'bg-gray-100 text-gray-800';
       case 'abandonné': return 'bg-red-100 text-red-800';
       default: return 'bg-blue-100 text-blue-800';
     }
@@ -94,7 +94,7 @@ const Messtages = () => {
     <div className="p-6 ">
       {/* Filtres */}
       <div className="flex flex-wrap gap-3 mb-6">
-        {['', 'en cours', 'terminé', 'abandonné'].map((etat) => (
+        {['', 'en cours', 'termine', 'abandonné'].map((etat) => (
           <button
             key={etat}
             className={`px-4 py-2 rounded-full border border-gray-300 text-sm font-medium ${

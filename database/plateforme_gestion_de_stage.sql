@@ -40,6 +40,7 @@ CREATE TABLE ChefDepartement (
 
 CREATE TABLE Administrateur (
     id_adm INT PRIMARY KEY,
+    Departement VARCHAR(100)
     FOREIGN KEY (id_adm) REFERENCES Utilisateur(id) ON DELETE CASCADE
 );
 
@@ -78,7 +79,7 @@ CREATE TABLE favoris (
     FOREIGN KEY (offre_fav) REFERENCES offrestage(id_offre) ON DELETE CASCADE
 );
 
-TABLE Evaluation (
+CREATE TABLE Evaluation (
     evaluateur INT,
     evalue INT,
     id_offre INT,

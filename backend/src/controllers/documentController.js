@@ -5,31 +5,15 @@ const fs = require('fs');
 const db = require('../config/db');
 exports.uploadRapport = async (req, res) => {
   try {
-  const { stageId } = req.body;
+    const { stageId } = req.body;
     const file = req.file;
-
-    // Log 1: Vérifiez les données reçues
-    console.log('=== DONNÉES REÇUES ===');
-    console.log('Stage ID (type):', stageId, typeof stageId);
-    console.log('Fichier reçu:', file ? {
-      name: file.originalname,
-      size: file.size,
-      type: file.mimetype 
-    } : 'Aucun fichier');
-    console.log('User ID:', req.user.id, typeof req.user.id);
 
     if (!file || !stageId) {
       if (file) fs.unlinkSync(file.path);
       return res.status(400).json({ success: false, message: "Données manquantes" });
     }
 
-    // Log 2: Avant la requête SQL
-    console.log('=== REQUÊTE SQL ===');
-    console.log('Exécution requête avec:', {
-      stageId: stageId,
-      userId: req.user.id
-    });
-
+    // 1. Récupérer les infos du stage
     const [[stage]] = await db.query(
       `SELECT c.etat_sta, o.entr, c.offre, c.candidat 
        FROM Candidature c
@@ -38,33 +22,29 @@ exports.uploadRapport = async (req, res) => {
       [stageId, req.user.id]
     );
 
-    // Log 3: Résultats de la requête
-    console.log('=== RÉSULTATS REQUÊTE ===');
-    console.log('Stage trouvé:', stage);
-    console.log('État du stage:', stage?.etat_sta);
-    console.log('Type de etat_sta:', typeof stage?.etat_sta);
-    console.log('Comparaison exacte (en cours):', stage?.etat_sta === 'en cours');
-
-    // Log 4: Vérification des types
-    if (stage) {
-      console.log('Types des IDs:');
-      console.log('offre (DB):', stage.offre, typeof stage.offre);
-      console.log('candidat (DB):', stage.candidat, typeof stage.candidat);
-    }
-
     if (!stage || stage.etat_sta !== 'en cours') {
-      // Log 5: Raison de l'échec
-      console.log('=== ÉCHEC VÉRIFICATION ===');
-      console.log('Raison:', !stage ? 'Stage non trouvé' : `Mauvais état: ${stage.etat_sta}`);
-      
       fs.unlinkSync(file.path);
       return res.status(400).json({ 
         success: false, 
-        message: "Seuls les stages en cours peuvent recevoir des rapports" 
+        message: "Seuls les stages en cours peuvent recevoir des rapport" 
       });
     }
 
-    // Récupérer infos étudiant
+    // 2. Préparer le stockage du fichier
+    // Dans uploadRapport, remplacez la partie stockage par :
+const uploadDir = path.join(__dirname, '../../tmp/uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+// Replace the filename generation with:
+const newFilename = `rapport-${stageId}-${Date.now()}${path.extname(file.originalname)}`;
+const destPath = path.join(uploadDir, newFilename);
+const relativePath = `/uploads/${newFilename}`; // Notez le chemin simplifié
+
+    fs.renameSync(file.path, destPath);
+
+    // 3. Récupérer infos étudiant et chef de département
     const [[etudiant]] = await db.query(
       `SELECT u.nom, u.prenom, e.departement 
        FROM Utilisateur u
@@ -73,30 +53,35 @@ exports.uploadRapport = async (req, res) => {
       [req.user.id]
     );
 
-    // Récupérer chef de département
     const chefDeptId = await Document.getChefDepartement(req.user.id);
 
     if (!chefDeptId) {
-      fs.unlinkSync(file.path);
+      fs.unlinkSync(destPath);
       return res.status(400).json({ 
         success: false, 
         message: "Chef de département introuvable" 
       });
     }
 
-    // Enregistrement pour l'entreprise et le chef
+    // 4. Enregistrement pour l'entreprise et le chef
     const destinataires = [stage.entr, chefDeptId];
 
     await Promise.all(destinataires.map(async dest => {
       // Enregistrer document
-      await Document.create({
-        exped_doc: req.user.id,
-        destin_doc: dest,
-        nom: file.originalname,
-        type: file.mimetype,
-        chemin: file.path,
-         date_envoi: new Date()
-      });
+      await db.query(
+        `INSERT INTO Document 
+         (exped_doc, destin_doc, nom, type, chemin, date_envoi,associated_offer)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [
+          req.user.id,
+          dest,
+          file.originalname,
+          'rapport', // Type fixé à 'rapport' au lieu du mimetype
+          relativePath, // Chemin relatif
+          new Date(),
+           stageId  // Associe explicitement le rapport à l'offre de stage
+        ]
+      );
 
       // Envoyer notification
       await Notification.create({
@@ -109,7 +94,8 @@ exports.uploadRapport = async (req, res) => {
 
     res.json({ 
       success: true, 
-      message: "Rapport envoyé à l'entreprise et au chef de département" 
+      message: "Rapport envoyé à l'entreprise et au chef de département",
+      filePath: relativePath
     });
 
   } catch (err) {
@@ -120,9 +106,7 @@ exports.uploadRapport = async (req, res) => {
       message: "Erreur lors de l'envoi du rapport" 
     });
   }
-
 };
-
 exports.uploadConvention = async (req, res) => {
   try {
     // Validation des données

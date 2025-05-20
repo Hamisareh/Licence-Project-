@@ -251,7 +251,7 @@ exports.annulerCandidature = async (req, res) => {
       domaine: s.domaine,
       date_debut: s.date_debut,
       date_fin: s.date_fin,
-      etat: s.etat_sta, // 'en cours', 'terminée' ou 'abandonnée'
+      etat: s.etat_sta, // 'en cours', 'terminee' ou 'abandonnée'
       details: {
         contact: s.entreprise_email,
         periode: `${new Date(s.date_debut).toLocaleDateString()} - ${new Date(s.date_fin).toLocaleDateString()}`,
@@ -349,28 +349,40 @@ exports.getCandidaturesForChef = async (req, res) => {
 // controllers/candidatureController.js
 exports.getStagiairesForChef = async (req, res) => {
   try {
+    // 1. Récupérer le département du chef
+    const [chef] = await db.query(
+      `SELECT departement FROM ChefDepartement WHERE id_chef = ?`, 
+      [req.user.id]
+    );
+
+    if (!chef || !chef[0]) {
+      return res.status(403).json({ 
+        success: false, 
+        message: "Accès refusé - département non trouvé" 
+      });
+    }
+
+    // 2. Requête principale avec toutes les infos entreprise
     const [rows] = await db.query(`
       SELECT 
         u.id AS candidat_id,
-        u.nom, 
-        u.prenom, 
-        e.matricule,
-        o.id_offre AS offre_id, 
-        o.titre,
-        o.domaine,
-        o.date_debut,
-        o.date_fin,
-        o.missions,
-        o.competencesRequises,
-        c.etat_sta,
-        o.entr AS entreprise_id,
-        ev.note_comport,
-        ev.note_adapt,
-        ev.note_esprit_equipe,
-        ev.note_qual_trav,
-        ev.nb_absences,
-        ev.nb_justification,
-        ev.commentaire,
+        u.nom, u.prenom, e.matricule,
+        o.id_offre, o.titre, o.domaine, o.duree,
+        o.date_debut, o.date_fin, o.missions,
+        o.competencesRequises, o.descr, c.etat_sta,
+        /* Documents */
+        (
+          SELECT chemin FROM Document 
+          WHERE exped_doc = c.candidat 
+          AND type = 'rapport'
+          AND associated_offer = c.offre
+          ORDER BY date_envoi DESC LIMIT 1
+        ) AS chemin_rapport,
+        /* Évaluation */
+        ev.note_comport, ev.note_adapt,
+        ev.note_esprit_equipe, ev.note_qual_trav,
+        ev.nb_absences, ev.nb_justification, ev.commentaire,
+        /* Entreprise - toutes les infos */
         ent.nom AS entreprise_nom,
         ent.email AS entreprise_email,
         entp.tel AS entreprise_tel,
@@ -380,32 +392,40 @@ exports.getStagiairesForChef = async (req, res) => {
       JOIN Utilisateur u ON c.candidat = u.id
       JOIN Etudiant e ON u.id = e.id_etud
       JOIN offrestage o ON c.offre = o.id_offre
-      LEFT JOIN Evaluation ev ON (ev.evalue = c.candidat AND ev.id_offre = c.offre)
       JOIN Utilisateur ent ON o.entr = ent.id
       LEFT JOIN Entreprise entp ON ent.id = entp.id_entr
-      WHERE c.etat_sta IN ('en cours', 'termine', 'abandonne')
+      LEFT JOIN Evaluation ev ON (ev.evalue = c.candidat AND ev.id_offre = c.offre)
+      WHERE e.departement = ?
+      AND c.etat_sta IN ('en cours', 'termine', 'abandonne')
       ORDER BY c.etat_sta, u.nom
-    `);
+    `, [chef[0].departement]);
 
+    // 3. Formatage des résultats
     const result = rows.map(row => ({
       candidat: row.candidat_id,
       nom: row.nom,
       prenom: row.prenom,
       matricule: row.matricule,
-      offre: row.offre_id,
+      offre: row.id_offre,
       titre: row.titre,
       domaine: row.domaine,
+      duree: row.duree,
       date_debut: row.date_debut,
       date_fin: row.date_fin,
       missions: row.missions,
+      descr: row.descr,
       competencesRequises: row.competencesRequises,
       etat_sta: row.etat_sta,
-      entreprise_id: row.entreprise_id,
       entreprise_nom: row.entreprise_nom,
       entreprise_email: row.entreprise_email,
       entreprise_tel: row.entreprise_tel,
       entreprise_secteur: row.entreprise_secteur,
       entreprise_adr: row.entreprise_adr,
+      chemin_rapport: row.chemin_rapport 
+        ? row.chemin_rapport.startsWith('/') 
+          ? row.chemin_rapport 
+          : `/uploads/${row.chemin_rapport}`
+        : null,
       evaluation: row.note_comport ? {
         note_comport: row.note_comport,
         note_adapt: row.note_adapt,
@@ -419,8 +439,11 @@ exports.getStagiairesForChef = async (req, res) => {
 
     res.json({ success: true, data: result });
   } catch (error) {
-    console.error("Erreur:", error);
-    res.status(500).json({ success: false, message: "Erreur serveur" });
+    console.error("Erreur getStagiairesForChef:", error);
+    res.status(500).json({ 
+      success: false,
+      message: "Erreur serveur" 
+    });
   }
 };
 // ... (autres méthodes pour entreprises)

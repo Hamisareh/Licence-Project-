@@ -15,7 +15,7 @@ export default function Offresdetails() {
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
-  const api_URL = 'http://192.168.90.20:5000/api/auth';
+  const api_URL = 'http://192.168.219.93:5000/api/auth';
   const fileInputRef = useRef(null);
 
   const { from, etat } = location.state || {};
@@ -100,7 +100,7 @@ export default function Offresdetails() {
       formData.append('rapport', file);
       formData.append('stageId', id);
 
-      const response = await axios.post(`${api_URL}/rapports`, formData, {
+      const response = await axios.post(`${api_URL}/rapport`, formData, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'multipart/form-data'

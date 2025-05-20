@@ -11,7 +11,7 @@ const ForgotPassword = () => {
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const api_URL = 'http://192.168.90.20:5000/api/auth';
+  const api_URL = 'http://192.168.219.93:5000/api/auth';
   const onRefresh = () => {
     setRefreshing(true);
     setEmail('');
