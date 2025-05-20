@@ -63,7 +63,7 @@ function App() {
         <Route path="/chef" element={<DashboardChefLayout />}>
           <Route path="/chef" element={<DashboardHome />} />
           <Route path="candidatures" element={<CandidaturesChef />} />
-          <Route path="stagiaires" element={<Stagiaires />} />
+          <Route path="Stagiaires" element={<Stagiaires />} />
           <Route path="profil" element={<ProfilChef />} />
           <Route path="modifier-mot-de-passe" element={<ChangePasswordChef />} />
         </Route>

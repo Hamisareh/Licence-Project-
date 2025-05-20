@@ -111,7 +111,7 @@ exports.mesCandidatures = async (req, res) => {
         titre: c.titre,
         entreprise: c.entreprise_nom,
         date: c.date_cand ? new Date(c.date_cand).toISOString() : null,
-        etat: c.etat_cand || 'en_attente',
+        etat: c.etat_cand || 'en attente',
         accepte: c.etat_sta === 'en cours',
         cvUrl: c.cv ? `${process.env.BASE_URL || ''}${c.cv}` : null,
         details: {
@@ -156,7 +156,7 @@ exports.annulerCandidature = async (req, res) => {
       // Vérifier que la candidature appartient à l'utilisateur
       const [candidature] = await db.query(
         `SELECT * FROM Candidature 
-         WHERE candidat = ? AND offre = ? AND etat_cand = 'en_attente'`,
+         WHERE candidat = ? AND offre = ? AND etat_cand = 'en attente'`,
         [req.user.id, idOffre]
       );
   
@@ -299,5 +299,80 @@ exports.getCandidaturesForChef = async (req, res) => {
   }
 };
 // controllers/candidatureController.js
+exports.getStagiairesForChef = async (req, res) => {
+  try {
+    const [rows] = await db.query(`
+      SELECT 
+        u.id AS candidat_id,
+        u.nom, 
+        u.prenom, 
+        e.matricule,
+        o.id_offre AS offre_id, 
+        o.titre,
+        o.domaine,
+        o.date_debut,
+        o.date_fin,
+        o.missions,
+        o.competencesRequises,
+        c.etat_sta,
+        o.entr AS entreprise_id,
+        ev.note_comport,
+        ev.note_adapt,
+        ev.note_esprit_equipe,
+        ev.note_qual_trav,
+        ev.nb_absences,
+        ev.nb_justification,
+        ev.commentaire,
+        ent.nom AS entreprise_nom,
+        ent.email AS entreprise_email,
+        entp.tel AS entreprise_tel,
+        entp.secteur AS entreprise_secteur,
+        entp.adr AS entreprise_adr
+      FROM Candidature c
+      JOIN Utilisateur u ON c.candidat = u.id
+      JOIN Etudiant e ON u.id = e.id_etud
+      JOIN offrestage o ON c.offre = o.id_offre
+      LEFT JOIN Evaluation ev ON (ev.evalue = c.candidat AND ev.id_offre = c.offre)
+      JOIN Utilisateur ent ON o.entr = ent.id
+      LEFT JOIN Entreprise entp ON ent.id = entp.id_entr
+      WHERE c.etat_sta IN ('en cours', 'termine', 'abandonne')
+      ORDER BY c.etat_sta, u.nom
+    `);
 
+    const result = rows.map(row => ({
+      candidat: row.candidat_id,
+      nom: row.nom,
+      prenom: row.prenom,
+      matricule: row.matricule,
+      offre: row.offre_id,
+      titre: row.titre,
+      domaine: row.domaine,
+      date_debut: row.date_debut,
+      date_fin: row.date_fin,
+      missions: row.missions,
+      competencesRequises: row.competencesRequises,
+      etat_sta: row.etat_sta,
+      entreprise_id: row.entreprise_id,
+      entreprise_nom: row.entreprise_nom,
+      entreprise_email: row.entreprise_email,
+      entreprise_tel: row.entreprise_tel,
+      entreprise_secteur: row.entreprise_secteur,
+      entreprise_adr: row.entreprise_adr,
+      evaluation: row.note_comport ? {
+        note_comport: row.note_comport,
+        note_adapt: row.note_adapt,
+        note_esprit_equipe: row.note_esprit_equipe,
+        note_qual_trav: row.note_qual_trav,
+        nb_absences: row.nb_absences,
+        nb_justification: row.nb_justification,
+        commentaire: row.commentaire
+      } : null
+    }));
+
+    res.json({ success: true, data: result });
+  } catch (error) {
+    console.error("Erreur:", error);
+    res.status(500).json({ success: false, message: "Erreur serveur" });
+  }
+};
 // ... (autres méthodes pour entreprises)

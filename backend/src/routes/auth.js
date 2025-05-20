@@ -77,17 +77,24 @@ router.post('/rapports', verifyToken,requireRole('etudiant'),upload.single('rapp
 //notification
 router.get('/notification', verifyToken, notificationController.getUserNotifications);
 router.patch('/notification/:id/read', verifyToken, notificationController.markAsRead);
+
+
+
 // Routes Candidatures pour Chef de Département
 router.get('/candidatures/chef', verifyToken, requireRole('chef_dept'), candidatureController.getCandidaturesForChef);
+
+
 // Route pour l'upload de convention (UNE SEULE DÉCLARATION)
 router.post(
   '/conventions/upload',
   verifyToken,
   requireRole('chef_dept'),
-  upload.single('convention'), // Même middleware multer
+  upload.single('convention'),
   documentController.uploadConvention
 );
 // Routes des offres
 router.get('/offres', offreController.getOffresLight);
 router.get('/offres/:id', offreController.getOffreById);
 
+//  stagechef
+router.get('/stagiaires/chef', verifyToken, requireRole('chef_dept'), candidatureController.getStagiairesForChef);
