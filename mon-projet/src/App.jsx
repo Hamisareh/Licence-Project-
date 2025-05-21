@@ -11,6 +11,13 @@ import InscriptionEntreprise from './components/InscriptionEntreprise';
 import ForgotPasswordEmail from './pages/ForgotPasswordEmail';
 import ForgotPasswordVerify from './pages/ForgotPasswordVerify';
 
+// Dashboard admin
+import DashboardAdminLayout from "./pages/dashboard/admin/DashboardAdminLayout";
+import GestionChefs from "./pages/dashboard/admin/GestionChefs";
+import StatistiquesAdmin from "./pages/dashboard/admin/StatistiquesAdmin";
+import LogoutAdmin from "./pages/dashboard/admin/LogoutAdmin";
+import ProfilAdmin from "./pages/dashboard/admin/ProfilAdmin";
+import PasswordAdmin from "./pages/dashboard/admin/PasswordAdmin";
 // Dashboard Chef
 import DashboardChefLayout from "./pages/dashboard/chef/DashboardChefLayout";
 import DashboardHome from "./pages/dashboard/chef/DashboardHome";
@@ -58,6 +65,17 @@ function App() {
         {/* Mot de passe oublié */}
         <Route path="/mot-de-passe-oublie" element={<ForgotPasswordEmail />} />
         <Route path="/verification-code" element={<ForgotPasswordVerify />} />
+
+
+               {/* Espace admin */}
+          <Route path="/admin" element={<DashboardAdminLayout />}>
+            <Route index element={<StatistiquesAdmin />} />
+            <Route path="gestion-chefs" element={<GestionChefs />} />
+            <Route path="profil" element={<ProfilAdmin />} />
+            <Route path="/admin/modifier-mot-de-passe" element={<PasswordAdmin />} />
+            <Route path="statistiques" element={<StatistiquesAdmin />} />
+            <Route path="logout" element={<LogoutAdmin />} />
+          </Route>
 
        {/* Espace Chef */}
         <Route path="/chef" element={<DashboardChefLayout />}>

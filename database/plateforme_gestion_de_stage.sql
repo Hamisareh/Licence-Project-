@@ -14,7 +14,7 @@ CREATE TABLE Utilisateur (
 
 CREATE TABLE Etudiant (
     id_etud INT PRIMARY KEY,
-    universite VARCHAR(100),
+    universite VARCHAR(100),--default UMBB
     specialite VARCHAR(100),
     niveau VARCHAR(50),  --L1 L2 L2 M1 M2
     departement VARCHAR(100),  --'Informatique', 'Mathematiques', 'Physique', 'Agronomie', 'SNV', 'Biologie', 'STAPS', 'Chimie'
@@ -33,14 +33,14 @@ CREATE TABLE Entreprise (
 
 CREATE TABLE ChefDepartement (
     id_chef INT PRIMARY KEY,
-    universite VARCHAR(100),
-    departement VARCHAR(100),
+    universite VARCHAR(100),--default UMBB
+    departement VARCHAR(100), 
     FOREIGN KEY (id_chef) REFERENCES Utilisateur(id) ON DELETE CASCADE
 );
 
 CREATE TABLE Administrateur (
     id_adm INT PRIMARY KEY,
-    Departement VARCHAR(100)
+    universite VARCHAR(100), --default UMBB
     FOREIGN KEY (id_adm) REFERENCES Utilisateur(id) ON DELETE CASCADE
 );
 
@@ -62,7 +62,7 @@ CREATE TABLE offrestage (
 CREATE TABLE Candidature (
     candidat INT,
     offre INT,
-    date_cand DATE NOT NULL,
+    date_cand DATE NOT NULL, -- en attente, accepte , refuse
     etat_cand VARCHAR(50) DEFAULT 'en attente',  -- en attente, accepte , refuse     
     etat_sta VARCHAR(50) DEFAULT NULL,        --en cours abandonne termine       
     cv VARCHAR(255),                                  

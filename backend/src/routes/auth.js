@@ -13,6 +13,11 @@ const notificationController = require('../controllers/notificationController');
 const offreController = require('../controllers/offreController');
 const documentController = require('../controllers/documentController'); // Ajoutez cette ligne
 const statsController = require('../controllers/statsController');
+const bcrypt = require('bcrypt');
+const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
+const db = require('../config/db');
+const adminController = require('../controllers/adminController');
 
 // 🔐 Authentification
 router.post('/register', controller.register);
@@ -53,7 +58,7 @@ router.get('/offres/:id_offre', offreCtrl.getOffreComplete); // Pour offre-detai
 //favori
 router.get('/favoris', verifyToken, requireRole('etudiant'), favoriController.getFavoris);
 router.post('/favoris/toggle', verifyToken, requireRole('etudiant'), favoriController.toggleFavori);
-module.exports = router;
+
 
 //candidature
 router.get('/candidatures/active', verifyToken, requireRole('etudiant'), candidatureController.getActiveApplications);
@@ -87,13 +92,7 @@ router.get('/candidatures/chef', verifyToken, requireRole('chef_dept'), candidat
 
 
 // Route pour l'upload de convention (UNE SEULE DÉCLARATION)
-router.post(
-  '/conventions/upload',
-  verifyToken,
-  requireRole('chef_dept'),
-  upload.single('convention'),
-  documentController.uploadConvention
-);
+router.post('/conventions/upload',verifyToken,requireRole('chef_dept'),upload.single('convention'), documentController.uploadConvention);
 // Routes des offres
 router.get('/offres', offreController.getOffresLight);
 router.get('/offres/:id', offreController.getOffreById);
@@ -102,3 +101,11 @@ router.get('/offres/:id', offreController.getOffreById);
 router.get('/stagiaires/chef', verifyToken, requireRole('chef_dept'), candidatureController.getStagiairesForChef);
 
 router.get('/chef/stats', verifyToken, requireRole('chef_dept'), statsController.getChefStats);
+
+
+// Routes Admin
+router.get('/admin/chefs', verifyToken, requireRole('admin'), adminController.listChefs);
+router.post('/admin/create-chef', verifyToken, requireRole('admin'), adminController.createChef);
+router.put('/me', verifyToken, controller.updateCurrentUser);
+router.get('/admin/stats', verifyToken, requireRole('admin'), statsController.getAdminStats);
+module.exports = router;

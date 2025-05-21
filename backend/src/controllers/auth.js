@@ -3,8 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const User = require('../models/user');
-const { sendVerificationEmail, sendResetPasswordEmail } = require('../utils/mailer');
-
+const { sendVerificationEmail, sendResetPasswordEmail, sendChefAccountEmail } = require('../utils/mailer');
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -146,8 +145,12 @@ exports.getCurrentUser = async (req, res) => {
     } else if (user.role === 'chef_dept') {
       const [rows] = await db.query('SELECT universite, departement FROM ChefDepartement WHERE id_chef = ?', [user.id]);
       Object.assign(user, rows[0]);
+     } else if (user.role === 'admin') {
+      const [rows] = await db.query('SELECT universite FROM Administrateur WHERE id_adm = ?', [user.id]);
+      Object.assign(user, rows[0]);
+      // Pour les admins, on peut définir un département par défaut ou le laisser vide
+      user.departement = "Administration centrale";
     }
-    // admin : pas d’info spécifique
 
     res.json({ user });
   } catch (err) {
@@ -164,7 +167,10 @@ exports.updateCurrentUser = async (req, res) => {
     specialite,
     niveau,
     departement,
-    matricule  
+    matricule,
+    adr,
+    tel,
+    secteur  
   } = req.body;
 
   try {
@@ -190,14 +196,24 @@ exports.updateCurrentUser = async (req, res) => {
         'UPDATE ChefDepartement SET universite = ?, departement = ? WHERE id_chef = ?',
         [universite, departement, req.user.id]
       );
+    } else if (req.user.role === 'admin') {
+      await db.query(
+        'UPDATE Administrateur SET universite = ? WHERE id_adm = ?',
+        [universite, req.user.id]
+      );
     }
 
-    res.json({ message: 'Profil mis à jour avec succès' });
+    res.json({ 
+      success: true,
+      message: 'Profil mis à jour avec succès'
+    });
   } catch (err) {
     console.error('Erreur lors de la mise à jour du profil:', err);
-    res.status(500).json({ error: 'Erreur lors de la mise à jour' });
+    res.status(500).json({ 
+      success: false,
+      error: 'Erreur lors de la mise à jour' 
+    });
   }
-
 };
 exports.changePassword = async (req, res) => {
   const { currentPassword, newPassword, confirmPassword } = req.body;

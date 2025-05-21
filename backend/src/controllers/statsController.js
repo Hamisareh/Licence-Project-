@@ -99,3 +99,75 @@ exports.getChefStats = async (req, res) => {
     });
   }
 };
+
+exports.getAdminStats = async (req, res) => {
+  console.log("Début getAdminStats"); // Ajoutez ce log
+  try {
+    console.log("User ID:", req.user.id); // Vérifiez l'ID de l'admin
+    
+    const [admin] = await db.query(
+      `SELECT a.universite 
+       FROM Administrateur a
+       WHERE a.id_adm = ?`, 
+      [req.user.id]
+    );
+    console.log("Admin trouvé:", admin); // Vérifiez les données admin
+
+    if (!admin || !admin[0]) {
+      console.log("Admin non trouvé");
+      return res.status(403).json({ success: false, message: "Admin non trouvé" });
+    }
+
+    const universite = admin[0].universite;
+    console.log("Université:", universite);
+
+    // 2. Statistiques par département
+    const [departements] = await db.query(
+  `SELECT 
+    e.departement,
+    COUNT(DISTINCT e.id_etud) as etudiants,
+    COUNT(DISTINCT CONCAT(c.candidat, '-', c.offre)) as candidatures,
+    COUNT(DISTINCT CASE WHEN c.etat_sta = 'en cours' THEN CONCAT(c.candidat, '-', c.offre) END) as stagiaires
+   FROM Etudiant e
+   LEFT JOIN Candidature c ON c.candidat = e.id_etud
+   WHERE e.universite = ?
+   GROUP BY e.departement`,
+  [universite]
+);
+
+    // 3. Totaux globaux
+    const [[totaux]] = await db.query(
+      `SELECT 
+        COUNT(DISTINCT e.id_etud) as total_etudiants,
+        COUNT(DISTINCT c.id_cand) as total_candidatures,
+        COUNT(DISTINCT CASE WHEN c.etat_sta = 'en cours' THEN c.id_cand END) as total_stagiaires
+       FROM Etudiant e
+       LEFT JOIN Candidature c ON c.candidat = e.id_etud
+       WHERE e.universite = ?`,
+      [universite]
+    );
+
+     console.log("Données préparées:", { // Ajoutez ce log
+      universite,
+      departements,
+      totaux
+    });
+
+    res.json({
+      success: true,
+      data: {
+        universite,
+        departements,
+        totaux
+      }
+    });
+
+  } catch (error) {
+    console.error("Erreur complète:", error); // Log complet
+    res.status(500).json({ 
+      success: false,
+      message: "Erreur serveur",
+      error: error.message // Renvoyez le message d'erreur
+    });
+  }
+};
