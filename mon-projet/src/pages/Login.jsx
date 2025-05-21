@@ -33,7 +33,7 @@ const Login = () => {
           navigate('/chef');
           break;
         case 'admin':
-          navigate('admin');
+          navigate('/admin');
           break;
         default:
           navigate('/');

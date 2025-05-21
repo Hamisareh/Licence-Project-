@@ -251,7 +251,7 @@ exports.annulerCandidature = async (req, res) => {
       domaine: s.domaine,
       date_debut: s.date_debut,
       date_fin: s.date_fin,
-      etat: s.etat_sta, // 'en cours', 'terminee' ou 'abandonnée'
+      etat: s.etat_sta, // 'en cours', 'terminee' ou 'abandonnee'
       details: {
         contact: s.entreprise_email,
         periode: `${new Date(s.date_debut).toLocaleDateString()} - ${new Date(s.date_fin).toLocaleDateString()}`,

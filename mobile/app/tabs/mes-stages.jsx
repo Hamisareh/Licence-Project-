@@ -65,7 +65,7 @@ useEffect(() => {
     switch(etat) {
       case 'en cours': return '#28a74533';
       case 'termine': return '#6c757d';
-      case 'abandonné': return '#dc3545';
+      case 'abandonne': return '#dc3545';
       default: return '#000041';
     }
   }
@@ -101,7 +101,7 @@ useEffect(() => {
       {/* Filtres */}
       {filtreVisible && (
         <View style={styles.filtreContainer}>
-          {['', 'en cours', 'termine', 'abandonné'].map((etat) => (
+          {['', 'en cours', 'termine', 'abandonne'].map((etat) => (
             <TouchableOpacity
               key={etat}
               style={[

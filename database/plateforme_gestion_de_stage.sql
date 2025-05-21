@@ -16,9 +16,9 @@ CREATE TABLE Etudiant (
     id_etud INT PRIMARY KEY,
     universite VARCHAR(100),
     specialite VARCHAR(100),
-    niveau VARCHAR(50),
-    departement VARCHAR(100),
-     matricule VARCHAR(20),
+    niveau VARCHAR(50),  --L1 L2 L2 M1 M2
+    departement VARCHAR(100),  --'Informatique', 'Mathematiques', 'Physique', 'Agronomie', 'SNV', 'Biologie', 'STAPS', 'Chimie'
+    matricule VARCHAR(20),
     FOREIGN KEY (id_etud) REFERENCES Utilisateur(id) ON DELETE CASCADE
 );
 
@@ -63,8 +63,8 @@ CREATE TABLE Candidature (
     candidat INT,
     offre INT,
     date_cand DATE NOT NULL,
-    etat_cand VARCHAR(50) DEFAULT 'en attente',        
-    etat_sta VARCHAR(50) DEFAULT NULL,                
+    etat_cand VARCHAR(50) DEFAULT 'en attente',  -- en attente, accepte , refuse     
+    etat_sta VARCHAR(50) DEFAULT NULL,        --en cours abandonne termine       
     cv VARCHAR(255),                                  
     PRIMARY KEY (candidat, offre),
     FOREIGN KEY (candidat) REFERENCES Etudiant(id_etud) ON DELETE CASCADE,
@@ -115,6 +115,7 @@ CREATE TABLE Document (
   destin_doc INT NOT NULL,
   type VARCHAR(100) NOT NULL,
   chemin VARCHAR(255) NOT NULL,
+  associated_offer INT NULL,
   date_envoi DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (exped_doc) REFERENCES Utilisateur(id),
   FOREIGN KEY (destin_doc) REFERENCES Utilisateur(id)

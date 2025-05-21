@@ -51,7 +51,7 @@ export default function SidebarChef() {
   const navLinks = [
     {
       to: "/chef",
-      label: "Dashboard",
+      label: "Statistiques",
       icon: <LayoutDashboard size={18} />,
     },
     {

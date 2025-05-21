@@ -12,6 +12,8 @@ const documentCtrl = require('../controllers/documentController');
 const notificationController = require('../controllers/notificationController');
 const offreController = require('../controllers/offreController');
 const documentController = require('../controllers/documentController'); // Ajoutez cette ligne
+const statsController = require('../controllers/statsController');
+
 // 🔐 Authentification
 router.post('/register', controller.register);
 router.get('/confirm/:token', controller.confirmEmail);
@@ -98,3 +100,5 @@ router.get('/offres/:id', offreController.getOffreById);
 
 //  stagechef
 router.get('/stagiaires/chef', verifyToken, requireRole('chef_dept'), candidatureController.getStagiairesForChef);
+
+router.get('/chef/stats', verifyToken, requireRole('chef_dept'), statsController.getChefStats);
