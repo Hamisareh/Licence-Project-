@@ -26,7 +26,7 @@ export default function DashboardHome() {
     const fetchStats = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:5000/api/auth/chef/stats', {
+        const response = await axios.get('http://192.168.90.20:5000/api/auth/chef/stats', {
           headers: { Authorization: `Bearer ${token}` }
         });
         setStats(response.data.data);

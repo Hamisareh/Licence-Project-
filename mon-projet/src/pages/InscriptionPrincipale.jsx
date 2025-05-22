@@ -49,7 +49,7 @@ const InscriptionPrincipale = () => {
 
   return (
     <div className="h-screen bg-cover bg-center flex items-center justify-center text-white"
-      style={{ backgroundImage: "url('/assets/imagehero.jpg')" }}>
+      style={{ backgroundImage: "url('/assets/a (3).jpg')" }}>
       <div className="bg-black bg-opacity-50 backdrop-blur-md rounded-xl p-8 shadow-lg w-full max-w-md text-white">
         <h2 className="text-3xl font-bold underline text-center mb-6 text-white">Inscription</h2>
 

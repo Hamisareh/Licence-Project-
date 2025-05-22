@@ -10,7 +10,8 @@ import InscriptionChefDepartement from './components/InscriptionChefDepartement'
 import InscriptionEntreprise from './components/InscriptionEntreprise';
 import ForgotPasswordEmail from './pages/ForgotPasswordEmail';
 import ForgotPasswordVerify from './pages/ForgotPasswordVerify';
-
+import Offre from './pages/offres';
+import Details from './pages/details';
 // Dashboard admin
 import DashboardAdminLayout from "./pages/dashboard/admin/DashboardAdminLayout";
 import GestionChefs from "./pages/dashboard/admin/GestionChefs";
@@ -48,14 +49,16 @@ function App() {
       <Routes>
         {/* Page d'accueil */}
         <Route path="/" element={<Accueil />} />
-
+{/* Pages publiques des offres */}
+        <Route path="/offres" element={<Offre />} />
+        <Route path="/details/:id" element={<Details />} />
         {/* Page de connexion */}
         <Route
           path="/connexion"
           element={
             <div
               className="text-black h-screen flex justify-center items-center bg-cover bg-center"
-              style={{ backgroundImage: "url('/assets/imagehero.jpg')" }}
+              style={{ backgroundImage: "url('/assets/a (3).jpg')" }}
             >
               <Login />
             </div>

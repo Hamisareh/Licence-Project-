@@ -15,8 +15,8 @@ const PORT = process.env.PORT || 5000;
 const corsOptions = {
   origin: [
     'http://localhost:5173',                 // React en local
-    'http://192.168.219.93:5173',            // React sur réseau local
-    'https://eff8-105-235-130-105.ngrok-free.app', // ton frontend via ngrok si tu l'utilises
+    'http://192.168.90.20:5173',            // React sur réseau local
+    'https://f26c-105-235-130-107.ngrok-free.app', // ton frontend via ngrok si tu l'utilises
     'http://localhost:19006',                // Expo mobile (optionnel)
   ],
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],

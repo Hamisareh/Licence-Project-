@@ -13,7 +13,7 @@ export default function Stagiaires() {
     const fetchStagiaires = async () => {
       try {
         const response = await axios.get(
-          "http://192.168.219.93:5000/api/auth/stagiaires/chef", 
+          "http://192.168.90.20:5000/api/auth/stagiaires/chef", 
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`
@@ -118,7 +118,7 @@ export default function Stagiaires() {
                   <td className="px-4 py-2 text-center">
                     {stagiaire.chemin_rapport ? (
                       <a
-                        href={`http://localhost:5000${stagiaire.chemin_rapport}?t=${Date.now()}`}
+                        href={`http://192.168.90.20:5000${stagiaire.chemin_rapport}?t=${Date.now()}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-blue-500 hover:text-blue-700"
@@ -225,7 +225,7 @@ export default function Stagiaires() {
                   <p className="font-medium">Rapport de stage:</p>
                   {selectedStagiaire.chemin_rapport ? (
                     <a
-                      href={`http://localhost:5000${selectedStagiaire.chemin_rapport}`}
+                      href={`http://192.168.90.20:5000${selectedStagiaire.chemin_rapport}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-blue-500 hover:underline flex items-center mt-1"

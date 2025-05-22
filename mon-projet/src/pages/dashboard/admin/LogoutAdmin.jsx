@@ -34,7 +34,7 @@ function LogoutAdmin() {
       if (result.isConfirmed) {
         try {
           const token = localStorage.getItem('token');
-          await axios.post('http://localhost:5000/api/auth/logout', {}, {
+          await axios.post('http://192.168.90.20:5000/api/auth/logout', {}, {
             headers: { Authorization: `Bearer ${token}` },
           });
           localStorage.removeItem('token');

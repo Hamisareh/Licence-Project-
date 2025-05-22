@@ -9,7 +9,7 @@ const raisons = [
   {
     img: '/assets/communication.png',
     titre: 'Communication centralisée',
-    description: 'Une messagerie intégrée pour échanger facilement avec les entreprises.',
+    description: 'La communication entre les utilisateurs via un système de notifications et d’échange de documents, assurant une circulation d’information fluide et structurée.',
   },
   {
     img: '/assets/temp.png',

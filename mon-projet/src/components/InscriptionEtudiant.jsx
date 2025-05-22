@@ -63,7 +63,7 @@ const InscriptionEtudiant = () => {
   return (
     <div
       className="min-h-screen bg-cover bg-center flex items-center justify-center"
-      style={{ backgroundImage: "url('/assets/imagehero.jpg')" }}
+      style={{ backgroundImage: "url('/assets/a (3).jpg')" }}
     >
       <div className="bg-white bg-opacity-20 backdrop-blur-lg p-8 rounded-2xl shadow-md w-full max-w-lg text-white">
         <h2 className="text-2xl font-bold text-center underline mb-6">Inscription - Étudiant</h2>

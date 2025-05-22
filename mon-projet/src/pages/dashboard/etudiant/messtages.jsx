@@ -9,7 +9,7 @@ const Messtages = () => {
   const [stages, setStages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const api_URL = 'http://192.168.219.93:5000/api/auth';
+  const api_URL = 'http://192.168.90.20:5000/api/auth';
 
   const fetchStages = async () => {
     try {

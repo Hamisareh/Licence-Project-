@@ -39,7 +39,7 @@ const ForgotPasswordVerify = () => {
   };
 
   return (
-    <div className="h-screen flex justify-center items-center bg-cover bg-center" style={{ backgroundImage: "url('/assets/imagehero.jpg')" }}>
+    <div className="h-screen flex justify-center items-center bg-cover bg-center" style={{ backgroundImage: "url('/assets/a (3).jpg')" }}>
       <div className="bg-black bg-opacity-50 backdrop-blur-md rounded-xl p-8 shadow-lg w-full max-w-md text-white">
         <h2 className="text-2xl font-bold underline text-center mb-6">Vérification & Nouveau mot de passe</h2>
 

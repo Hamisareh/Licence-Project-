@@ -68,7 +68,7 @@ export default function ApplyFormModal({ offre, userData, onClose }) {
       formPayload.append('cv', formData.cv);
       formPayload.append('offre_id', offre.id_offre);
 
-      const response = await axios.post('http://192.168.219.93:5000/api/auth/candidatures', formPayload, {
+      const response = await axios.post('http://192.168.90.20:5000/api/auth/candidatures', formPayload, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'multipart/form-data',
@@ -109,6 +109,7 @@ export default function ApplyFormModal({ offre, userData, onClose }) {
                   name="nom"
                   value={formData.nom}
                   onChange={handleChange}
+                   disabled 
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#000041] focus:border-[#000041]"
                   required
                 />
@@ -121,6 +122,7 @@ export default function ApplyFormModal({ offre, userData, onClose }) {
                   name="prenom"
                   value={formData.prenom}
                   onChange={handleChange}
+                   disabled 
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#000041] focus:border-[#000041]"
                   required
                 />
@@ -133,6 +135,7 @@ export default function ApplyFormModal({ offre, userData, onClose }) {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
+                   
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#000041] focus:border-[#000041]"
                   required
                   disabled
@@ -146,6 +149,7 @@ export default function ApplyFormModal({ offre, userData, onClose }) {
                   name="matricule"
                   value={formData.matricule}
                   onChange={handleChange}
+                   disabled 
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#000041] focus:border-[#000041]"
                   required
                 />
@@ -158,6 +162,7 @@ export default function ApplyFormModal({ offre, userData, onClose }) {
                   name="universite"
                   value={formData.universite}
                   onChange={handleChange}
+                   disabled 
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#000041] focus:border-[#000041]"
                   required
                 />
@@ -170,6 +175,7 @@ export default function ApplyFormModal({ offre, userData, onClose }) {
                   name="departement"
                   value={formData.departement}
                   onChange={handleChange}
+                   disabled 
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#000041] focus:border-[#000041]"
                   required
                 />
@@ -182,6 +188,7 @@ export default function ApplyFormModal({ offre, userData, onClose }) {
                   name="specialite"
                   value={formData.specialite}
                   onChange={handleChange}
+                   disabled 
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#000041] focus:border-[#000041]"
                   required
                 />
@@ -194,6 +201,7 @@ export default function ApplyFormModal({ offre, userData, onClose }) {
                   name="niveau"
                   value={formData.niveau}
                   onChange={handleChange}
+                   disabled 
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#000041] focus:border-[#000041]"
                   required
                 />

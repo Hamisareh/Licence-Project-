@@ -28,7 +28,7 @@ const ApplyFormModal = ({ visible, onClose, offre, userData }) => {
     cv: null,
   });
   const [loading, setLoading] = useState(false);
-  const api_URL = 'http://192.168.219.93:5000/api/auth';
+  const api_URL = 'http://192.168.90.20:5000/api/auth';
 
   useEffect(() => {
     if (userData) {
@@ -126,29 +126,28 @@ const ApplyFormModal = ({ visible, onClose, offre, userData }) => {
 
             <View style={styles.formGroup}>
        
-              {['nom', 'prenom', 'email'].map((field) => (
-                <TextInput
-                  key={field}
-                  style={styles.input}
-                  placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
-                  value={formData[field]}
-                  onChangeText={(text) => handleChange(field, text)}
-                  editable={field !== 'email'}
-                />
-              ))}
+            {['nom', 'prenom', 'email'].map((field) => (
+  <TextInput
+    key={field}
+    style={[styles.input, styles.readOnlyInput]}
+    placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
+    value={formData[field]}
+    editable={false}
+  />
+))}
             </View>
 
             <View style={styles.formGroup}>
              
-              {['universite', 'departement', 'specialite', 'niveau', 'matricule'].map((field) => (
-                <TextInput
-                  key={field}
-                  style={styles.input}
-                  placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
-                  value={formData[field]}
-                  onChangeText={(text) => handleChange(field, text)}
-                />
-              ))}
+            {['universite', 'departement', 'specialite', 'niveau', 'matricule'].map((field) => (
+  <TextInput
+    key={field}
+    style={[styles.input, styles.readOnlyInput]}
+    placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
+    value={formData[field]}
+    editable={false}
+  />
+))}
             </View>
 
             <View style={styles.formGroup}>

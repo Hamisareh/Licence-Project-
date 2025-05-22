@@ -21,7 +21,7 @@ const GestionChefs = () => {
     const fetchChefs = async () => {
   try {
     const token = localStorage.getItem('token');
-    const res = await axios.get('http://localhost:5000/api/auth/admin/chefs', {
+    const res = await axios.get('http://192.168.90.20:5000/api/auth/admin/chefs', {
       headers: { Authorization: `Bearer ${token}` }
     });
     setChefs(res.data.chefs);
@@ -40,7 +40,7 @@ const GestionChefs = () => {
     e.preventDefault();
     try {
      const token = localStorage.getItem('token');
-await axios.post('http://localhost:5000/api/auth/admin/create-chef', formData, {
+await axios.post('http://192.168.90.20:5000/api/auth/admin/create-chef', formData, {
   headers: { Authorization: `Bearer ${token}` }
 });
       toast.success('Chef créé avec succès');
@@ -70,14 +70,14 @@ const handleUpdateChef = async (e) => {
   try {
     const token = localStorage.getItem('token');
     await axios.put(
-      `http://localhost:5000/api/auth/admin/chefs/${editingChef.id}`,
+      `http://192.168.90.20:5000/api/auth/admin/chefs/${editingChef.id}`,
       formData,
       { headers: { Authorization: `Bearer ${token}` } }
     );
     toast.success('Chef modifié avec succès');
     setEditModal(false);
     // Recharger la liste
-    const res = await axios.get('http://localhost:5000/api/auth/admin/chefs', {
+    const res = await axios.get('http://192.168.90.20:5000/api/auth/admin/chefs', {
       headers: { Authorization: `Bearer ${token}` }
     });
     setChefs(res.data.chefs);

@@ -21,7 +21,7 @@ transporter.verify((error, success) => {
 
 // Version originale pour les étudiants/entreprises
 exports.sendVerificationEmail = (to, token, prenom) => {
-  const link = `http://192.168.219.93:5000/api/auth/confirm/${token}`;
+  const link = `http://192.168.90.20:5000/api/auth/confirm/${token}`;
   
   return transporter.sendMail({
     from: process.env.EMAIL_USER,
